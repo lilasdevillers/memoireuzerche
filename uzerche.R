@@ -474,3 +474,6 @@ ggplot(data = base%>%group_by(month)%>%summarise(moy_age = mean(age)),aes(x = mo
 base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
 ggplot(data = base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age,group=code_place2,col=code_place2))+
   geom_point()
+
+#je fais juste un test pour voir comment ça marche
+
