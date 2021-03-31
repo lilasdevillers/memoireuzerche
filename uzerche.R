@@ -325,7 +325,7 @@ base_tbm <- rbind(base_tbm,c(1906,tbm(sum(year(base$date)==1906),pop_uzerche$pop
 
 base_tbm
 base_tbm <- data.frame(matrix(nrow=0, ncol=2))
-colnames(base_tbm) <- c("ann?e","taux")
+colnames(base_tbm) <- c("année","taux")
 year(base$date)
 filter(year(base$date)==1906)
 year(base$date)==1906
@@ -436,6 +436,13 @@ kids_dead2 <- slice(kids_dead2, which(code_place2!="espartignac"))
 aggregate(age~code_place2,base,mean)
 aggregate(age~code_place2,base,median)
 aggregate(age~code_place2,base,sd)
+moy_median <- cbind(aggregate(age~code_place2,base,mean), aggregate(age~code_place2,base,median))
+colnames(moy_median) <- c("lieu","moy_age","lieu2","median_age")
+moy_median <- select(moy_median, -3)
+ggplot(data = aggregate(age~code_place2,base,mean),aes(x = code_place2, y= age,group=code_place2,col=code_place2))+
+  geom_point() + ggtitle("moy age de deces en fct ville")
+ggplot(data = moy_median,aes(x = lieu, y= c("moy_age","median_age"),group=c("moy_age","median_age"),col=c("moy_age","median_age")))+
+  geom_point() + ggtitle("moy age de deces en fct ville")
 
 ##2: moy et mediane et ecart type d'age de d?c?s par ville et par annee + graph
 base %>%group_by(annee, code_place2) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
@@ -453,27 +460,59 @@ ggplot(data = histo2,
 
 #courbes
 ggplot(data = histo2,aes(x = annee, y= age,group = code_place2,colour=code_place2))+
-  geom_line()
+  geom_line() + ggtitle("moy age de deces par ville en fct de l'année")
 
 histo3 <-slice(histo2, which(code_place2!="other"))
 histo3 <-slice(histo3, which(code_place2!="espartignac"))
 ggplot(data = histo3,aes(x = annee, y= age,group = code_place2,colour=code_place2))+
-  geom_line()
+  geom_line() + ggtitle("moy age de deces par ville en fct de l'année")
 
 #3: moy, mediam, ecart type deces par annee et par mois :
 base %>%group_by(annee, month) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
 
 ggplot(data = base%>%group_by(annee, month)%>%summarise(moy_age = mean(age)),aes(x = annee, y= moy_age,group=month,col=month))+
-  geom_point()
+  geom_point() + ggtitle("moy age de deces par mois en fct de l'année")
 
-#4 : moy, median, ecart type deces par mois :
+#4 : moy, median, ecart type deces par mois et par ville :
 base %>%group_by(month) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
 aggregate(age~month,base,mean)
 ggplot(data = base%>%group_by(month)%>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age))+
-  geom_point()
+  geom_point() + ggtitle("moy age de deces en fct du mois")
 base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
 ggplot(data = base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age,group=code_place2,col=code_place2))+
-  geom_point()
+  geom_point() + ggtitle("moy age de deces par ville en fct du mois")
 
-#je fais juste un test pour voir comment ça marche
+
+## gautier carte
+load("pop.RData")
+
+library(rgdal)
+mymap <- readOGR(dsn="19-correze", layer="19-", p4s=NULL)
+mypop <- data.frame(NOM_COMM=mymap@data$NOM_COMM, ORDERED_NOM_COMM=c(1:length(mymap@data$NOM_COMM)))
+pop <- merge(pop, mypop, by=c("NOM_COMM"), all.y=TRUE)
+pop <- pop[order(pop$ORDERED_NOM_COMM),]
+mymap@data$pop <- pop$nom 
+rm(pop, mypop)
+head(mymap@data)
+
+library(classInt)
+nclasse <- 6
+distr <- classIntervals(mymap@data$pop, nclasse, style="quantile")$brks
+
+library(RColorBrewer)
+colfunc <- colorRampPalette(c("lightpink3", "lightpink", "white", "lightblue", "lightblue4"))
+colours <- colfunc(nclasse)
+rm(colfunc)
+colMap <- colours[findInterval(mymap$pop, distr, all.inside=TRUE)]
+par(mar=c(6,2.5,4,2))
+plot(mymap, col=colMap, main="Population in Corrèze", sub="1867-1901 cohorts")
+
+points(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
+       pch=20, col="red", cex=1)
+
+library(maptools)
+pointLabel(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
+           labels = mymap@data$NOM_COMM[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC")], 
+           offset = 0, cex = 0.6, col="red")
+
 
