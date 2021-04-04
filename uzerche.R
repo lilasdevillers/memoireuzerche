@@ -509,7 +509,7 @@ colours <- colfunc(nclasse)
 rm(colfunc)
 colMap <- colours[findInterval(mymap$pop, distr, all.inside=TRUE)]
 par(mar=c(6,2.5,4,2))
-plot(mymap, col=colMap, main="Population in Correze", sub="1867-1901 cohorts")
+plot(mymap[canton,], col=colMap, main="Population in Correze", sub="1867-1901 cohorts")
 
 points(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
        pch=20, col="red", cex=1)
@@ -533,6 +533,35 @@ points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","E
 canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24
 plot(correze[canton,],main="Population in Correze", sub="1874-1906 cohorts")
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), pch=20, 
+       col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"), cex=1)
+
+#carte 3 : comme la 2 mais avec la méthode de gautier et les quantiles du nb pop
+load("pop.RData")
+
+library(rgdal)
+mymap <- readOGR(dsn="19-correze", layer="19-", p4s=NULL)
+mypop <- data.frame(NOM_COMM=mymap@data$NOM_COMM, ORDERED_NOM_COMM=c(1:length(mymap@data$NOM_COMM)))
+pop <- merge(pop, mypop, by=c("NOM_COMM"), all.y=TRUE)
+pop <- pop[order(pop$ORDERED_NOM_COMM),]
+mymap@data$pop <- pop$nom 
+rm(pop, mypop)
+head(mymap@data)
+plot(mymap)
+plot(correze)
+library(classInt)
+nclasse <- 6
+distr <- classIntervals(mymap@data$pop, nclasse, style="quantile")$brks
+
+library(RColorBrewer)
+colfunc <- colorRampPalette(c("lightpink3", "lightpink", "white", "lightblue", "lightblue4"))
+colours <- colfunc(nclasse)
+rm(colfunc)
+colMap <- colours[findInterval(mymap$pop, distr, all.inside=TRUE)]
+par(mar=c(6,2.5,4,2))
+canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24
+plot(mymap[canton,], col=colMap, main="Population in Correze")
+
+points(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), pch=20, 
        col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"), cex=1)
 
 #marche pas : tentative rajouter legende et nom des villes
