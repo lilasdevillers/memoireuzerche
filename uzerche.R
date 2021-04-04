@@ -518,19 +518,24 @@ library(maptools)
 pointLabel(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
            labels = mymap@data$NOM_COMM[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC")], 
            offset = 0, cex = 0.6, col="red")
+
 #carte qui marche
-canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24
-plot(correze[canton,],main="Population in Correze", sub="1867-1901 cohorts")
+library("rgdal")
+correze <- readOGR(dsn="19-correze", layer="19-")
+correze <- spTransform(correze, CRS("+proj=longlat"))
+correze@data$id <- rownames(correze@data)
+#carte 1 : toute la correze
 plot(correze, col = "lightgrey")
 plot(correze[canton, ], col = "turquoise", add = TRUE)
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
        pch=20, col="red", cex=1)
-
-plot(correze[canton,],main="Population in Correze", sub="1867-1901 cohorts")
+#carte 2 : seulement la partie qui nous interesse
+canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24
+plot(correze[canton,],main="Population in Correze", sub="1874-1906 cohorts")
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), pch=20, 
        col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"), cex=1)
 
-#marche pas
+#marche pas : tentative rajouter legende et nom des villes
 pointLabel(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
            labels = correze@data$NOM_COMM[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC")], 
            cex = 0.1, col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"))
