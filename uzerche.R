@@ -159,7 +159,7 @@ library("maptools")
 library("ggplot2")
 library("plyr")
 # Importer les polygones
-correze <- readOGR(dsn="./N_SECTEUR_CC_019.shp", layer="N_SECTEUR_CC_019")
+correze <- readOGR(dsn="19-correze", layer="19-")
 # ?tape pour changer la projection de la carte
 correze <- spTransform(correze, CRS("+proj=longlat"))
 # Pour permettre la jointure des objets g?om?triques
@@ -169,11 +169,14 @@ correze_points <- fortify(correze,data="id")
 # Permet d'?viter des trous ?ventuels
 correze_df <- join(correze_points, correze@data, by="id")
 
+
 p_map_correze <- ggplot(data = correze_df,
                        aes(x = long, y = lat, group = group)) +
   geom_polygon() +
   coord_equal()
 p_map_correze
+
+correze_ville<- data.frame(NOM_COMM=mymap@data$NOM_COMM, ORDERED_NOM_COMM=c(1:length(mymap@data$NOM_COMM)))
 
 #test taux de mortalit? et corr?lation
 
@@ -494,7 +497,8 @@ pop <- pop[order(pop$ORDERED_NOM_COMM),]
 mymap@data$pop <- pop$nom 
 rm(pop, mypop)
 head(mymap@data)
-
+plot(mymap)
+plot(correze)
 library(classInt)
 nclasse <- 6
 distr <- classIntervals(mymap@data$pop, nclasse, style="quantile")$brks
@@ -505,7 +509,7 @@ colours <- colfunc(nclasse)
 rm(colfunc)
 colMap <- colours[findInterval(mymap$pop, distr, all.inside=TRUE)]
 par(mar=c(6,2.5,4,2))
-plot(mymap, col=colMap, main="Population in Corrèze", sub="1867-1901 cohorts")
+plot(mymap, col=colMap, main="Population in Correze", sub="1867-1901 cohorts")
 
 points(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
        pch=20, col="red", cex=1)
@@ -514,5 +518,22 @@ library(maptools)
 pointLabel(coordinates(mymap[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC"),]), 
            labels = mymap@data$NOM_COMM[mymap@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE", "TREIGNAC")], 
            offset = 0, cex = 0.6, col="red")
+#carte qui marche
+canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24
+plot(correze[canton,],main="Population in Correze", sub="1867-1901 cohorts")
+plot(correze, col = "lightgrey")
+plot(correze[canton, ], col = "turquoise", add = TRUE)
+points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
+       pch=20, col="red", cex=1)
 
+plot(correze[canton,],main="Population in Correze", sub="1867-1901 cohorts")
+points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), pch=20, 
+       col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"), cex=1)
+
+#marche pas
+pointLabel(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
+           labels = correze@data$NOM_COMM[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC")], 
+           cex = 0.1, col=c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"))
+legend("left",c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),
+       c("red","blue","green","yellow","brown","pink","orange","purple","cyan","black"), pch="1",cex=0.2)
 
