@@ -53,6 +53,8 @@ sort(unique(base$job))
  
 ##################################################
 
+#To fix the problem of ages:
+base$age<-round(base$age,0)
 ###########Data description figures################
 
 #####Time trend: time series first insight
@@ -63,9 +65,10 @@ ggplot(t_trend, aes(x = annee, y = age)) +
   geom_smooth(method=lm, se=FALSE)+
 labs(x='years', y='average death age') + ggtitle ("Time trend in the life time")
 
-#########Population differences: cross-sectional data first insights
+#########Population differences: cross-sectional data first insights##########
 ggplot(base, aes(x=town, y=age))+
  geom_boxplot()
+
 ###number of death by town
 ndeath<-data.frame(sort(table(base$town)))
 colnames(ndeath)<-c("town","ndeath")
@@ -74,51 +77,39 @@ ggplot(ndeath, aes(x=town, y=ndeath)) +
   geom_boxplot()
 
 ########## age deaths distributions by town
-base$age<-round(base$age,0)
 
+#number of deaths by age and per town
 agextown<-data.frame(table(base$age,base$town))
 colnames(agextown)<-c("age","town","nbr")
 agextown$age<-as.numeric(agextown$age)
 
+#total number of death in each town
 totald<-data.frame(table(base$town))
 colnames(totald)<-c("town", "totaldeaths") 
 
+#final table with the number of death per town and age divided by the total
 age_distrib<-inner_join(agextown, totald)
 age_distrib$percent<- 100*age_distrib$nbr/age_distrib$totaldeaths
 
-agextown <- filter(agextown, age>5)
+
 
 ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
   geom_point()+
   geom_smooth(se=FALSE)
 
-
 ggplot(agextown, aes(x=age, y=nbr, colour=town))+
   geom_point()
 
-###how to divide each nbr by the total number of death in the town. To create
-  
+#if needed
+agextown <- filter(agextown, age>5)
 
-filter(agextown,age>=1)
-  
-boxplot1 <-base %>%
-  group_by(age, town) %>%
-  summarise(ndeath = table(age*town))
-histo2 <- slice(histo2, which(annee!="1893"))
-
-ggplot(data = boxplot1,
-       aes(x = town, y= ndeath,
-           colour = town))+
-  geom_point()+
-  scale_fill_brewer(type = "seq", palette = "Set1",direction = 9,aesthetics = "fill")
-
+##=>>>Try to cumulate the frequencies + find a better fitting model for smoothing
 
 
 #####Seasonality
 
 
-####
-
+#### to improve
 
 ggplot( data= aggregate(age~month,base,mean), aes(x = month, y = age)) +
   geom_point()
