@@ -7,11 +7,11 @@ correze <- spTransform(correze, CRS("+proj=longlat"))
 correze@data$id <- rownames(correze@data)
 #which area is interesting for us ?
 plot(correze, col = "lightgrey")
+canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24|correze@data$CODE_CANT==22
 plot(correze[canton, ], col = "turquoise", add = TRUE)
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
        pch=20, col="red", cex=1)
 #focusing on this area and adding Vezere
-canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24|correze@data$CODE_CANT==22
 plot(correze[canton,],main="Map of Correze")
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR"),]), pch=20, 
        col=c("black","black","black","black","black","black","black"), cex=1)
