@@ -4,33 +4,29 @@ library(ggplot2)
 library(lubridate)
 library(tidyr)
 library(magrittr)
+
  
 load("base_1896-1906.RData")
 
+base$year <- substr(x = base$date,1,4)
+base$month <- substr(x = base$date,6,7)
+
+
+base$pollution <- 0
+base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
+
 #######Create variable for the places of interest#######
+base$town <- c("other")
+base$town[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
+base$town[base$place=="espartignac"] <- c("espartignac")
+base$town[base$place=="eyburie"] <- c("eyburie")
+base$town[base$place=="masseret"] <- c("masseret")
+base$town[base$place=="meilhards"] <- c("meilhards")
+base$town[base$place=="saint-ybard"] <- c("saint-ybard")
+base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
+base$town[base$place=="uzerche"] <- c("uzerche")
 
-base$code_place <-0
-base$code_place[base$place=="condat-sur-ganaveix"] <- 1
-base$code_place[base$place=="espartignac"] <- 2
-base$code_place[base$place=="eyburie"] <- 3
-base$code_place[base$place=="masseret"] <- 4
-base$code_place[base$place=="meilhards"] <- 5
-base$code_place[base$place=="saint-ybard"] <- 6
-base$code_place[base$place=="salon-la-tour"] <- 7
-base$code_place[base$place=="vigeois"] <- 8
-base$code_place[base$place=="uzerche"] <- 9
-
-base$code_place2 <- c("other")
-base$code_place2[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
-base$code_place2[base$place=="espartignac"] <- c("espartignac")
-base$code_place2[base$place=="eyburie"] <- c("eyburie")
-base$code_place2[base$place=="masseret"] <- c("masseret")
-base$code_place2[base$place=="meilhards"] <- c("meilhards")
-base$code_place2[base$place=="saint-ybard"] <- c("saint-ybard")
-base$code_place2[base$place=="salon-la-tour"] <- c("salon-la-tour")
-base$code_place2[base$place=="uzerche"] <- c("uzerche")
-
-sort(unique(base$code_place2))
+sort(unique(base$town))
 
 ######################seasonality###################
 base$pollution <- 0
@@ -55,4 +51,64 @@ summary(lm(age~pollution*linger*cult, base))
 
 sort(unique(base$job))
  
+##################################################
+
+###########Data description figures################
+
+#####Time trend: time series first insight
+t_trend <- aggregate(age~annee,base,mean)
+t_trend$annee <- as.Date(t_trend$annee, format='%Y') 
+ggplot(t_trend, aes(x = annee, y = age)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)+
+labs(x='years', y='average death age') + ggtitle ("Time trend in the life time")
+
+#########Population differences: cross-sectional data first insights
+ggplot(base, aes(x=town, y=age))+
+ geom_boxplot()
+###number of death by town
+ndeath<-data.frame(sort(table(base$town)))
+colnames(ndeath)<-c("town","ndeath")
+
+ggplot(ndeath, aes(x=town, y=ndeath)) +
+  geom_boxplot()
+
+########## age deaths distributions by town
+base$age<-round(base$age,0)
+age_distrib<-data.frame(table(base$age,base$town))
+colnames(age_distrib)<-c("age","town","nbr")
+age_distrib$age<-as.numeric(age_distrib$age)
+age_distrib <- filter(age_distrib, age>5)
+ggplot(age_distrib, aes(x=age, y=nbr, colour=town))+
+  geom_point()
+
+###how to divide each nbr by the total number of death in the town. To create
+  
+
+filter(age_distrib,age>=1)
+  
+boxplot1 <-base %>%
+  group_by(age, town) %>%
+  summarise(ndeath = table(age*town))
+histo2 <- slice(histo2, which(annee!="1893"))
+
+ggplot(data = boxplot1,
+       aes(x = town, y= ndeath,
+           colour = town))+
+  geom_point()+
+  scale_fill_brewer(type = "seq", palette = "Set1",direction = 9,aesthetics = "fill")
+#####Seasonality
+
+
+
+####
+
+
+ggplot( data= aggregate(age~month,base,mean), aes(x = month, y = age)) +
+  geom_point()
+
+ggplot(data=aggregate(age~annee, base, mean), aes(x=annee, y=age))+
+  geom_point()+
+  geom_smooth(method=lm, y~x, se=FALSE)
+
 

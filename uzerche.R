@@ -338,33 +338,23 @@ base$month <- substr(x = base$date,6,7)
 sort(unique(base$annee))
 sort(unique(base$month))
 base$pollution <- 0
-base$pollution[base$place=="uzerche"] <- 1
+base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 lm2 <- lm(age~pollution+month,base)
 lm3 <- lm(age~pollution*month,base)
 aggregate(age~month,base,mean)
 aggregate(age~annee,base,mean)
 summary(lm(age~month,base))
 
-base$code_place <-0
-base$code_place[base$place=="condat-sur-ganaveix"] <- 1
-base$code_place[base$place=="espartignac"] <- 2
-base$code_place[base$place=="eyburie"] <- 3
-base$code_place[base$place=="masseret"] <- 4
-base$code_place[base$place=="meilhards"] <- 5
-base$code_place[base$place=="saint-ybard"] <- 6
-base$code_place[base$place=="salon-la-tour"] <- 7
-base$code_place[base$place=="vigeois"] <- 8
-base$code_place[base$place=="uzerche"] <- 9
 
-base$code_place2 <- c("other")
-base$code_place2[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
-base$code_place2[base$place=="espartignac"] <- c("espartignac")
-base$code_place2[base$place=="eyburie"] <- c("eyburie")
-base$code_place2[base$place=="masseret"] <- c("masseret")
-base$code_place2[base$place=="meilhards"] <- c("meilhards")
-base$code_place2[base$place=="saint-ybard"] <- c("saint-ybard")
-base$code_place2[base$place=="salon-la-tour"] <- c("salon-la-tour")
-base$code_place2[base$place=="uzerche"] <- c("uzerche")
+base$town <- c("other")
+base$town[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
+base$town[base$place=="espartignac"] <- c("espartignac")
+base$town[base$place=="eyburie"] <- c("eyburie")
+base$town[base$place=="masseret"] <- c("masseret")
+base$town[base$place=="meilhards"] <- c("meilhards")
+base$town[base$place=="saint-ybard"] <- c("saint-ybard")
+base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
+base$town[base$place=="uzerche"] <- c("uzerche")
 
 sort(unique(base$code_place))
 
@@ -377,7 +367,7 @@ ggplot( data= aggregate(age~annee,base,mean), aes(x = annee, y = age)) +
   geom_point()
 
 base$dead <- 1
-aggregate(age~code_place2,base,mean)
+aggregate(age~town,base,mean)
 aggregate(dead~place,base,sum)
 ggplot( data= aggregate(dead~code_place,base,sum), aes(x = code_place, y = dead)) +
   geom_bar(stat='identity')
@@ -397,7 +387,7 @@ ggplot(data = histo,
   geom_histogram(stat='identity',fill=rep(c("paleturquoise","brown","coral","palevioletred","palegreen","gray","sandybrown","orange","pink"), 23)) 
 histo <- slice(histo, which(code_place!="8"))
 histo2 <-base %>%
-  group_by(annee, code_place2) %>%
+  group_by(annee, town) %>%
   summarise(age = mean(age))
 histo2 <- slice(histo2, which(annee!="1893"))
 
@@ -408,7 +398,7 @@ ggplot(data = histo,
   scale_fill_distiller(type = "seq", palette = "Accent",direction = 9,values = NULL, space = "Lab", na.value = "grey50",guide = "colourbar",aesthetics = "fill")
 ggplot(data = histo2,
        aes(x = annee, y= age,
-           fill = code_place2))+
+           fill = town))+
   geom_histogram(stat='identity')+
   scale_fill_brewer(type = "seq", palette = "Set1",direction = 9,aesthetics = "fill")
 
@@ -419,52 +409,52 @@ ggplot(data = kids_dead,
   geom_histogram(stat='identity',fill=rep(c("red","blue"),23))
 kids_dead <- slice(kids_dead, which(annee!="1893"))
 
-kids_dead2 <- base %>%group_by(annee,code_place2,age<=2) %>%summarise(nb = sum(dead))
+kids_dead2 <- base %>%group_by(annee,town,age<=2) %>%summarise(nb = sum(dead))
 kids_dead2$`age <= 2`<- as.numeric(kids_dead2$`age <= 2`)
 ggplot(data = kids_dead2,
-       aes(x = annee, y= nb,colour = 'age <= 2',fill=code_place2))+
+       aes(x = annee, y= nb,colour = 'age <= 2',fill=town))+
   geom_histogram(stat='identity',colour=rep(c("white","red"),161))+
   scale_fill_brewer(type = "seq", palette = "Pastel1",direction = 7,aesthetics = "fill")
 kids_dead2 <- slice(kids_dead2, which(annee!="1893"))
-kids_dead2 <- slice(kids_dead2, which(code_place2!="other"))
-which(kids_dead2$code_place2=="espartignac")
-kids_dead2 <- slice(kids_dead2, which(code_place2!="espartignac"))
+kids_dead2 <- slice(kids_dead2, which(town!="other"))
+which(kids_dead2$town=="espartignac")
+kids_dead2 <- slice(kids_dead2, which(town!="espartignac"))
 
 #stats descriptives au propre :
 
 ##1: moy et mediane et ecart type d'age de d?c?s par ville
-aggregate(age~code_place2,base,mean)
-aggregate(age~code_place2,base,median)
-aggregate(age~code_place2,base,sd)
-moy_median <- cbind(aggregate(age~code_place2,base,mean), aggregate(age~code_place2,base,median))
+aggregate(age~town,base,mean)
+aggregate(age~town,base,median)
+aggregate(age~town,base,sd)
+moy_median <- cbind(aggregate(age~town,base,mean), aggregate(age~town,base,median))
 colnames(moy_median) <- c("lieu","moy_age","lieu2","median_age")
 moy_median <- select(moy_median, -3)
-ggplot(data = aggregate(age~code_place2,base,mean),aes(x = code_place2, y= age,group=code_place2,col=code_place2))+
+ggplot(data = aggregate(age~town,base,mean),aes(x = town, y= age,group=town,col=town))+
   geom_point() + ggtitle("moy age de deces en fct ville")
 ggplot(data = moy_median,aes(x = lieu, y= c("moy_age","median_age"),group=c("moy_age","median_age"),col=c("moy_age","median_age")))+
   geom_point() + ggtitle("moy age de deces en fct ville")
 
 ##2: moy et mediane et ecart type d'age de d?c?s par ville et par annee + graph
-base %>%group_by(annee, code_place2) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
+base %>%group_by(annee, town) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
 
 #histogramme
 histo2 <-base %>%
-  group_by(annee, code_place2) %>%
+  group_by(annee, town) %>%
   summarise(age = mean(age))
 histo2 <- slice(histo2, which(annee!="1893"))
 ggplot(data = histo2,
        aes(x = annee, y= age,
-           fill = code_place2))+
+           fill = town))+
   geom_histogram(stat='identity')+
   scale_fill_brewer(type = "seq", palette = "Set1",direction = 9,aesthetics = "fill")
 
 #courbes
-ggplot(data = histo2,aes(x = annee, y= age,group = code_place2,colour=code_place2))+
+ggplot(data = histo2,aes(x = annee, y= age,group = town,colour=town))+
   geom_line() + ggtitle("moy age de deces par ville en fct de l'année")
 
-histo3 <-slice(histo2, which(code_place2!="other"))
-histo3 <-slice(histo3, which(code_place2!="espartignac"))
-ggplot(data = histo3,aes(x = annee, y= age,group = code_place2,colour=code_place2))+
+histo3 <-slice(histo2, which(town!="other"))
+histo3 <-slice(histo3, which(town!="espartignac"))
+ggplot(data = histo3,aes(x = annee, y= age,group = town,colour=town))+
   geom_line() + ggtitle("moy age de deces par ville en fct de l'année")
 
 #3: moy, mediam, ecart type deces par annee et par mois :
@@ -478,8 +468,8 @@ base %>%group_by(month) %>%summarise(moy_age = mean(age),med_age=median(age),sd_
 aggregate(age~month,base,mean)
 ggplot(data = base%>%group_by(month)%>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age))+
   geom_point() + ggtitle("moy age de deces en fct du mois")
-base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
-ggplot(data = base %>%group_by(month,code_place2) %>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age,group=code_place2,col=code_place2))+
+base %>%group_by(month,town) %>%summarise(moy_age = mean(age),med_age=median(age),sd_age=sd(age))
+ggplot(data = base %>%group_by(month,town) %>%summarise(moy_age = mean(age)),aes(x = month, y= moy_age,group=town,col=town))+
   geom_point() + ggtitle("moy age de deces par ville en fct du mois")
 
 
