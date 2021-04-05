@@ -104,8 +104,16 @@ ggplot(agextown, aes(x=age, y=nbr, colour=town))+
 agextown <- filter(agextown, age>5)
 
 ##=>>>Try to cumulate the frequencies + find a better fitting model for smoothing
+for (t in sort(unique(base$town))){
+  age_distrib$cum<- cumsum(filter(age_distrib, town==t)$percent)
+}
 
+ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
+  geom_point()+
+  geom_smooth(se=FALSE)
 
+ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
+  geom_point()
 #####Seasonality
 
 
