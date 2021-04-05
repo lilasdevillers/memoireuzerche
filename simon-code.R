@@ -75,17 +75,31 @@ ggplot(ndeath, aes(x=town, y=ndeath)) +
 
 ########## age deaths distributions by town
 base$age<-round(base$age,0)
-age_distrib<-data.frame(table(base$age,base$town))
-colnames(age_distrib)<-c("age","town","nbr")
-age_distrib$age<-as.numeric(age_distrib$age)
-age_distrib <- filter(age_distrib, age>5)
-ggplot(age_distrib, aes(x=age, y=nbr, colour=town))+
+
+agextown<-data.frame(table(base$age,base$town))
+colnames(agextown)<-c("age","town","nbr")
+agextown$age<-as.numeric(agextown$age)
+
+totald<-data.frame(table(base$town))
+colnames(totald)<-c("town", "totaldeaths") 
+
+age_distrib<-inner_join(agextown, totald)
+age_distrib$percent<- 100*age_distrib$nbr/age_distrib$totaldeaths
+
+agextown <- filter(agextown, age>5)
+
+ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
+  geom_point()+
+  geom_smooth(se=FALSE)
+
+
+ggplot(agextown, aes(x=age, y=nbr, colour=town))+
   geom_point()
 
 ###how to divide each nbr by the total number of death in the town. To create
   
 
-filter(age_distrib,age>=1)
+filter(agextown,age>=1)
   
 boxplot1 <-base %>%
   group_by(age, town) %>%
@@ -97,8 +111,10 @@ ggplot(data = boxplot1,
            colour = town))+
   geom_point()+
   scale_fill_brewer(type = "seq", palette = "Set1",direction = 9,aesthetics = "fill")
-#####Seasonality
 
+
+
+#####Seasonality
 
 
 ####
