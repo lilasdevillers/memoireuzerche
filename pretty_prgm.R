@@ -86,6 +86,40 @@ x <- locator(n=20)
 lines(x,col="lightblue1",lwd=2)
 # hand drawing
 
+#Adding data on the map
+##NB dead in 1906
+correze@data$DEAD <- "NA"
+correze@data$DEAD <- as.numeric(correze@data$DEAD)
+correze@data[213,20] <- nrow(base[base$place=="uzerche"&base$annee=="1906",])
+correze@data[140,20] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1906",])
+correze@data[177,20] <-nrow(base[base$place=="espartignac"&base$annee=="1906",])
+correze@data[238,20] <-nrow(base[base$place=="eyburie"&base$annee=="1906",])
+correze@data[17,20] <-nrow(base[base$place=="masseret"&base$annee=="1906",])
+correze@data[23,20] <-nrow(base[base$place=="meilhards"&base$annee=="1906",])
+correze@data[216,20] <-nrow(base[base$place=="saint-ybard"&base$annee=="1906",])
+correze@data[68,20] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1906",])
+correze@data[10,20] <-nrow(base[base$place=="vigeois"&base$annee=="1906",])
+correze@data[179,20] <-nrow(base[base$place=="treignac"&base$annee=="1906",])
+
+correze2 <- correze[canton,]
+library(RColorBrewer)
+library(classInt)
+library(maptools)
+plotvar <- correze2@data$DEAD
+nclr <- 10
+plotclr <- brewer.pal(nclr,"PuOr")
+plotclr <- plotclr[nclr:1] # reorder colors
+class <- classIntervals(plotvar, nclr, style="equal")
+colcode <- findColours(class, plotclr)
+plot(correze2,col=colcode)
+locator(n=1) #helping to find where to put the legend
+legend(x=2.016408,y=45.54895,title="Number of dead in 1906",legend=names(attr(colcode,"table")),
+       fill=attr(colcode, "palette"), cex=0.6, bty="n")
+points(coordinates(correze2[correze2@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR"),]), pch=20, 
+       col=c("black","black","black","black","black","black","black"), cex=1)
+points(coordinates(correze2[correze2@data$NOM_COMM %in% c("TREIGNAC" ,"UZERCHE","VIGEOIS"),]), pch=20, 
+       col=c("red","red","red"), cex=1)
+
 
 ###Regressions :
 
