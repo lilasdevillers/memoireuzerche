@@ -25,13 +25,12 @@ base$town[base$place=="meilhards"] <- c("meilhards")
 base$town[base$place=="saint-ybard"] <- c("saint-ybard")
 base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
 base$town[base$place=="uzerche"] <- c("uzerche")
-
+base$town[base$place=="vigeois"] <- c("vigeois")
 sort(unique(base$town))
 
 ######################seasonality###################
 base$pollution <- 0
-base$pollution[base$place=="uzerche"] <- 1
-base$pollution[base$place=="vigeois"] <- 1
+base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 base$annee <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
@@ -42,6 +41,7 @@ summary(lm(age~pollution,base))
 
 ############variation annuels###########
 base$annee <- substr(x = base$date,1,4)
+
 lm(age~pollution*annee,base)
 
 ####################Lingère########################
@@ -63,11 +63,24 @@ t_trend$annee <- as.Date(t_trend$annee, format='%Y')
 ggplot(t_trend, aes(x = annee, y = age)) +
   geom_point() +
   geom_smooth(method=lm, se=FALSE)+
-labs(x='years', y='average death age') + ggtitle ("Time trend in the life time")
+labs(x='years', y='average death age') + ggtitle ("Average death age over time")
 
 #########Population differences: cross-sectional data first insights##########
 ggplot(base, aes(x=town, y=age))+
  geom_boxplot()
+
+
+
+#####Panle eyburie vs other
+histo2 <-base %>%
+  group_by(annee, town) %>%
+  summarise(age = mean(age))
+histo_3<-histo2 %>% filter(town=="uzerche"| town=="eyburie"|town=="espartignac")
+histo_3$annee <- as.Date(histo_3$annee, format='%Y')
+ggplot(histo_3, aes(x=annee, y=age, colour=town))+
+  geom_point()+
+  geom_smooth() +
+  ggtitle ("Failed attempt to investigate the specificity of Eyburie's demographic features")
 
 ###number of death by town
 ndeath<-data.frame(sort(table(base$town)))
@@ -97,8 +110,10 @@ ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
   geom_point()+
   geom_smooth(se=FALSE)
 
-ggplot(agextown, aes(x=age, y=nbr, colour=town))+
+ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
   geom_point()
+
+
 
 #if needed
 agextown <- filter(agextown, age>5)
@@ -108,12 +123,46 @@ for (t in sort(unique(base$town))){
   age_distrib$cum<- cumsum(filter(age_distrib, town==t)$percent)
 }
 
+for (t in sort(unique(base$town))){
+  age_distrib$cum[max(which(age_distrib==t)):min(which(age_distrib==t)),]<- cumsum(filter(age_distrib, town==t)$percent)
+}
 ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
   geom_point()+
   geom_smooth(se=FALSE)
 
 ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
   geom_point()
+
+
+
+
+####gender proportion per town
+table(base$gender, base$town)
+
+lmgend<-lm(age~gender, base)
+
+summary(lmgend)
+
+#############panel: Eyburie et uzerche
+t_median<-aggregate(age~annee, base, median)
+t_median<-as.Date(t_median$annee, format='%Y')
+
+ggplot(base, aes(x=annee, y=age), colours=(town=="uzerche"|town="eyburie"))+
+geom_point()
+
+histo_3<-histo2 %>% filter(town=="uzerche"| town=="eyburie"|town=="espartignac")
+histo_3$annee <- as.Date(histo_3$annee, format='%Y')
+  ggplot(histo_3, aes(x=annee, y=age, colour=town))+
+  geom_point()+
+    geom_smooth(se=FALSE)
+
+median <-base %>%
+  group_by(annee, (base %>% filter(town=="uzerche"|town=="eyburie" ))) %>%
+  summarise(age = median(age))
+ggplot(base, aes(x=) )
+
+
+
 #####Seasonality
 
 
