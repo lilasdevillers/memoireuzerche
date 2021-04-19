@@ -112,6 +112,7 @@ text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","MASSERET","ME
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("TREIGNAC" ,"UZERCHE","VIGEOIS"),]), pch=20, 
        col=c("red","red","red"), cex=1)
 text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","TREIGNAC","UZERCHE"),]),c("VIGEOIS","TREIGNAC","UZERCHE"),cex=0.45, pos=4,col="red")
+#réussi
 
 #pos et nom ville par ville
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("EYBURIE"),]), pch=20, 
