@@ -651,12 +651,12 @@ library(maptools)
 plotvar <- correze2@data$DEAD
 nclr <- 10
 plotclr <- brewer.pal(nclr,"PuOr")
-plotclr <- plotclr[nclr:1] # r´eordonne les couleurs
+plotclr <- plotclr[nclr:1] # r?eordonne les couleurs
 class <- classIntervals(plotvar, nclr, style="equal")
 colcode <- findColours(class, plotclr)
 plot(correze2,col=colcode)
-locator(n=1) #sert `a trouver les coordonn´ees du point o`u vous souhaitez placer la l´egende
-legend(x=2.016408,y=45.54895,title="Number of dead in 1906",legend=names(attr(colcode,"table")),
+locator(n=1) #sert `a trouver les coordonn?ees du point o`u vous souhaitez placer la l?egende
+legend(x=2.008351,y=45.74843,title="Number of dead in 1906",legend=names(attr(colcode,"table")),
        fill=attr(colcode, "palette"), cex=0.6, bty="n")
 
 correze@data$DEAD <- "NA"
@@ -675,3 +675,7 @@ correze@data[179,20] <-nrow(base[base$place=="treignac"&base$annee=="1906",])
 correze2 <- correze[canton,]
 plot(correze2)
 View(correze2@data)
+
+#carte avec les routes
+routeslimou<-readShapeLines("limousin/roads.shp",proj4string=CRS("+proj=longlat"))
+
