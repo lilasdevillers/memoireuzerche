@@ -95,18 +95,19 @@ lines(river,col="lightblue1",lwd=2)
 #Adding data on the map
 base$place <- str_to_upper(base$place)
 correze2 <- correze[canton,]
-
+VILLE <- c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR","UZERCHE","TREIGNAC","VIGEOIS")
+date <- c(1894,1895,1896,1897,1898,1899,1900,1901,1902,1903,1904,1905,1906)
 d <-1
-j <- 1
+v <- 1
 i <- 1
 ncol_correze2 <- ncol(correze2@data)
 for(d in (1:length(date))){
   correze2@data[,ncol_correze2+d] <- "NA"
   correze2@data[,ncol_correze2+d] <- as.numeric(correze2@data[,ncol_correze2+d])
-  for(j in (1:length(VILLE))){
+  for(v in (1:length(VILLE))){
     for(i in (1:nrow(correze2@data))){
-      if(correze2@data$NOM_COMM[i]==VILLE[j]){
-        correze2@data[i,ncol_correze2+d] <- nrow(base[base$place==VILLE[j]&base$annee==date[d],])
+      if(correze2@data$NOM_COMM[i]==VILLE[v]){
+        correze2@data[i,ncol_correze2+d] <- nrow(base[base$place==VILLE[v]&base$annee==date[d],])
       }
     }
   }
