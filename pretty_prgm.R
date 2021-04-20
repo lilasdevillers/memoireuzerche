@@ -16,6 +16,9 @@ save(base,file = "uzerche_test.RData")
 load("uzerche_test.RData")
 save(river,file="river_vezere.RData")
 load("river_vezere.RData")
+save(correze2,file="map_correze_canton_data.RData")
+load("map_correze_canton_data.RData")
+
 
 View(base)
 
