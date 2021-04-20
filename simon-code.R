@@ -55,7 +55,10 @@ sort(unique(base$job))
 
 #To fix the problem of ages:
 base$age<-round(base$age,0)
-###########Data description figures################
+
+
+
+##############################Data description figures###########################
 
 #####Time trend: time series first insight
 t_trend <- aggregate(age~annee,base,mean)
@@ -91,7 +94,7 @@ ggplot(ndeath, aes(x=town, y=ndeath)) +
 
 ########## age deaths distributions by town
 
-#number of deaths by age and per town
+#number of deaths by age and per town##########################################
 agextown<-data.frame(table(base$age,base$town))
 colnames(agextown)<-c("age","town","nbr")
 agextown$age<-as.numeric(agextown$age)
@@ -112,6 +115,17 @@ ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
 
 ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
   geom_point()
+####################################
+
+##################New attempt#################
+
+
+
+
+
+
+
+
 
 
 
@@ -142,24 +156,6 @@ table(base$gender, base$town)
 lmgend<-lm(age~gender, base)
 
 summary(lmgend)
-
-#############panel: Eyburie et uzerche
-t_median<-aggregate(age~annee, base, median)
-t_median<-as.Date(t_median$annee, format='%Y')
-
-ggplot(base, aes(x=annee, y=age), colours=(town=="uzerche"|town="eyburie"))+
-geom_point()
-
-histo_3<-histo2 %>% filter(town=="uzerche"| town=="eyburie"|town=="espartignac")
-histo_3$annee <- as.Date(histo_3$annee, format='%Y')
-  ggplot(histo_3, aes(x=annee, y=age, colour=town))+
-  geom_point()+
-    geom_smooth(se=FALSE)
-
-median <-base %>%
-  group_by(annee, (base %>% filter(town=="uzerche"|town=="eyburie" ))) %>%
-  summarise(age = median(age))
-ggplot(base, aes(x=) )
 
 
 
