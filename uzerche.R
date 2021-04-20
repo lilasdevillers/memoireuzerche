@@ -537,12 +537,18 @@ pop[pop$NOM_COMM=="SALON-LA-TOUR",2] <-nrow(base[base$place=="salon-la-tour"&bas
 pop[pop$NOM_COMM=="VIGEOIS",2] <-nrow(base[base$place=="vigeois"&base$annee=="1906",])
 pop[pop$NOM_COMM=="TREIGNAC",2] <-nrow(base[base$place=="treignac"&base$annee=="1906",])
 correze@data$pop <- pop$nom
+pop <- pop[order(pop$ORDERED_NOM_COMM),]
+
+mypop <- data.frame(NOM_COMM=correze@data$NOM_COMM, ORDERED_NOM_COMM=c(1:length(correze@data$NOM_COMM)))
+pop <- merge(pop, mypop, by=c("NOM_COMM"), all.y=TRUE)
+pop <- pop[order(pop$ORDERED_NOM_COMM),]
+correze@data$pop <- pop$nom 
 
 library(classInt)
-nclasse <- 3
+nclasse <- 2
 distr <- classIntervals(correze@data$pop, nclasse, style="quantile")$brks
 library(RColorBrewer)
-colfunc <- colorRampPalette(c("lightpink3", "blue","lightblue4"))
+colfunc <- colorRampPalette(c("lightpink3", "lightblue"))
 colours <- colfunc(nclasse)
 
 colMap <- colours[findInterval(correze$pop, distr, all.inside=TRUE)]
@@ -627,3 +633,39 @@ library(raster)
 x <- locator(n=20)
 lines(x,col="lightblue1",lwd=2)
 # a tracer à la main
+
+
+library(RColorBrewer)
+library(classInt)
+library(maptools)
+plotvar <- correze2@data$DEAD
+nclr <- 10
+plotclr <- brewer.pal(nclr,"PuOr")
+plotclr <- plotclr[nclr:1] # r?eordonne les couleurs
+class <- classIntervals(plotvar, nclr, style="equal")
+colcode <- findColours(class, plotclr)
+plot(correze2,col=colcode)
+locator(n=1) #sert `a trouver les coordonn?ees du point o`u vous souhaitez placer la l?egende
+legend(x=2.008351,y=45.74843,title="Number of dead in 1906",legend=names(attr(colcode,"table")),
+       fill=attr(colcode, "palette"), cex=0.6, bty="n")
+
+correze@data$DEAD <- "NA"
+correze@data$DEAD <- as.numeric(correze@data$DEAD)
+correze@data[213,20] <- nrow(base[base$place=="uzerche"&base$annee=="1906",])
+correze@data[140,20] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1906",])
+correze@data[177,20] <-nrow(base[base$place=="espartignac"&base$annee=="1906",])
+correze@data[238,20] <-nrow(base[base$place=="eyburie"&base$annee=="1906",])
+correze@data[17,20] <-nrow(base[base$place=="masseret"&base$annee=="1906",])
+correze@data[23,20] <-nrow(base[base$place=="meilhards"&base$annee=="1906",])
+correze@data[216,20] <-nrow(base[base$place=="saint-ybard"&base$annee=="1906",])
+correze@data[68,20] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1906",])
+correze@data[10,20] <-nrow(base[base$place=="vigeois"&base$annee=="1906",])
+correze@data[179,20] <-nrow(base[base$place=="treignac"&base$annee=="1906",])
+
+correze2 <- correze[canton,]
+plot(correze2)
+View(correze2@data)
+
+#carte avec les routes
+routeslimou<-readShapeLines("limousin/roads.shp",proj4string=CRS("+proj=longlat"))
+
