@@ -67,7 +67,7 @@ levels(place_factor) ; levels(job_factor) ; levels(gender_factor)
 
 ###Map of Correze
 #all of Correze
-library("rgdal")
+library("rgdal");library("maptools");library("maps");library("rgeos")
 correze <- readOGR(dsn="19-correze", layer="19-")
 correze <- spTransform(correze, CRS("+proj=longlat"))
 correze@data$id <- rownames(correze@data)
@@ -110,6 +110,7 @@ for(d in (1:length(date))){
 }
 names(correze2) <- c("ID_GEOFLA", "CODE_COMM", "INSEE_COM", "NOM_COMM","STATUT", "X_CHF_LIEU" ,"Y_CHF_LIEU", "X_CENTROID","Y_CENTROID","Z_MOYEN" ,  "SUPERFICIE","POPULATION","CODE_CANT", "CODE_ARR" ,"CODE_DEPT", "NOM_DEPT","CODE_REG", "NOM_REGION","id","DEAD1894", "DEAD1895", "DEAD1896", "DEAD1897", "DEAD1898", "DEAD1899", "DEAD1900", "DEAD1901", "DEAD1902", "DEAD1903", "DEAD1904", "DEAD1905", "DEAD1906")
 View(correze2@data)
+base$place <- str_to_lower(base$place)
 
 library(RColorBrewer)
 library(classInt)
