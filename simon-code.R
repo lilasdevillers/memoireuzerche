@@ -4,10 +4,11 @@ library(ggplot2)
 library(lubridate)
 library(tidyr)
 library(magrittr)
-
- 
-load("base_1896-1906.RData")
-
+####densities
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(ggridges)
 base$year <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
@@ -38,6 +39,11 @@ summary(lm(age~pollution+month,base))
 summary(lm(age~pollution*month,base))
 
 summary(lm(age~pollution,base))
+
+#interpretation:
+#  df<-base %>% filter(base$town!="uzerche"&base$month=="01")
+#mean(df$age)
+#[1] 31.85155
 
 ############variation annuels###########
 base$annee <- substr(x = base$date,1,4)
@@ -70,11 +76,12 @@ labs(x='years', y='average death age') + ggtitle ("Average death age over time")
 
 #########Population differences: cross-sectional data first insights##########
 ggplot(base, aes(x=town, y=age))+
- geom_boxplot()
+ geom_boxplot()+
+  ggtitle("Across towns death age distribution by quartile")
 
 
 
-#####Panle eyburie vs other
+#####Panel eyburie vs other
 histo2 <-base %>%
   group_by(annee, town) %>%
   summarise(age = mean(age))
@@ -86,15 +93,29 @@ ggplot(histo_3, aes(x=annee, y=age, colour=town))+
   ggtitle ("Failed attempt to investigate the specificity of Eyburie's demographic features")
 
 ###number of death by town
-ndeath<-data.frame(sort(table(base$town)))
+ndeath<-data.frame(sort(table(base$town), decreasing = TRUE))
 colnames(ndeath)<-c("town","ndeath")
-
+ndeaths<-sort()
 ggplot(ndeath, aes(x=town, y=ndeath)) +
   geom_boxplot()
 
-########## age deaths distributions by town
 
-#number of deaths by age and per town##########################################
+########## age deaths distributions by town###################################
+#############Density####################
+base %>% 
+  ggplot(aes(x=age))+
+  geom_density(fill="#69b3a2", color="#e9ecef",alpha=0.9, adjust = 0.5)+
+  facet_wrap(~town)+
+ggtitle("Across town death age distribution")
+
+base %>% 
+  ggplot( aes(y=town, x=age, fill=town))+
+  geom_density_ridges(alpha=0.6, bandwidth=4)
+
+###############################################
+
+
+####number of deaths by age and per town########
 agextown<-data.frame(table(base$age,base$town))
 colnames(agextown)<-c("age","town","nbr")
 agextown$age<-as.numeric(agextown$age)
@@ -117,36 +138,21 @@ ggplot(age_distrib, aes(x=age, y=percent, colour=town))+
   geom_point()
 ####################################
 
-##################New attempt#################
 
 
 
+##############infant mortality by town#########
+#1 years old is a child
 
-
-
-
-
-
-
-
-#if needed
-agextown <- filter(agextown, age>5)
-
-##=>>>Try to cumulate the frequencies + find a better fitting model for smoothing
-for (t in sort(unique(base$town))){
-  age_distrib$cum<- cumsum(filter(age_distrib, town==t)$percent)
+esp <- data.frame(matrix(nrow=1, ncol=2))
+esp[1,] <- c(1, mean(base$age))
+names(esp) <- c("age", "esp")
+for (age in (min(base$age):max(base$age))){
+  esp <- rbind(esp, c(age, mean(base$age[base$age>=age])))
 }
+plot(esp$age, esp$esp, type="p")
 
-for (t in sort(unique(base$town))){
-  age_distrib$cum[max(which(age_distrib==t)):min(which(age_distrib==t)),]<- cumsum(filter(age_distrib, town==t)$percent)
-}
-ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
-  geom_point()+
-  geom_smooth(se=FALSE)
-
-ggplot(age_distrib, aes(x=age, y=cum, colour=town))+
-  geom_point()
-
+quantile(base$age)
 
 
 
@@ -161,14 +167,5 @@ summary(lmgend)
 
 #####Seasonality
 
-
-#### to improve
-
-ggplot( data= aggregate(age~month,base,mean), aes(x = month, y = age)) +
-  geom_point()
-
-ggplot(data=aggregate(age~annee, base, mean), aes(x=annee, y=age))+
-  geom_point()+
-  geom_smooth(method=lm, y~x, se=FALSE)
 
 
