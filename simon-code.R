@@ -45,6 +45,56 @@ summary(lm(age~pollution,base))
 #mean(df$age)
 #[1] 31.85155
 
+##################################################
+
+###############filter seasonality#################
+
+
+
+
+
+###############################################
+
+##############diff-in-diff post#############
+base$post<-0
+base$post[base$annee>1893]<-1
+
+base$pollution <- 0
+base$pollution[base$place=="uzerche"] <- 1
+
+dind<-lm(age~pollution*post,base)
+summary(dind)
+###########################################
+
+######illustration with a figure#######create two groups
+
+t_trend <- aggregate(age~annee,base,mean)
+t_trend$annee <- as.Date(t_trend$annee, format='%Y') 
+ggplot(t_trend, aes(x = annee, y = age) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)+
+
+uzerche<-base %>% filter(base$town=="uzerche")
+utrend <- aggregate(age~annee,uzerche,mean)
+utrend$annee <- as.Date(utrend$annee, format='%Y') 
+ggplot(utrend, aes(x = annee, y = age)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)
+
+nonuzerche<-base %>% filter(base$town!="uzerche")
+nutrend <- aggregate(age~annee,nonuzerche,mean)
+nutrend$annee <- as.Date(nutrend$annee, format='%Y') 
+ggplot(nutrend, aes(x = annee, y = age)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)
+
+ggplot(nutrend, aes(x = annee, y = age)) +
+  ggplot(utrend, aes(x = annee, y = age)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)
+########common trend assumption placebo test (make a Diff-in-Diff in a period not affected by the change) only before and only after (should be nul) ############
+
+
 ############variation annuels###########
 base$annee <- substr(x = base$date,1,4)
 
