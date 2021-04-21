@@ -145,3 +145,211 @@ text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS"),]),c("VIGEOIS
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("TREIGNAC"),]), pch=20, 
        col=c("red"), cex=1)
 text(coordinates(correze2[correze2@data$NOM_COMM %in% c("TREIGNAC"),]),c("TREIGNAC"),cex=0.45, adj = c(0, 0))
+
+#prgm auto pour faire des cartes en fct des données
+correze4 <- readOGR(dsn="19-correze", layer="19-")
+correze4 <- spTransform(correze4, CRS("+proj=longlat"))
+base$place <- str_to_upper(base$place)
+correze3 <- correze4[canton,]
+rm(correze4)
+
+d <-1
+j <- 1
+i <- 1
+ncol_correze3 <- ncol(correze3@data)
+for(d in (1:length(date))){
+        correze3@data[,ncol_correze3+d] <- "NA"
+        correze3@data[,ncol_correze3+d] <- as.numeric(correze3@data[,ncol_correze3+d])
+        for(j in (1:length(VILLE))){
+                for(i in (1:nrow(correze3@data))){
+                        if(correze3@data$NOM_COMM[i]==VILLE[j]){
+                                correze3@data[i,ncol_correze3+d] <- nrow(base[base$place==VILLE[j]&base$annee==date[d],])
+                        }
+                }
+        }
+}
+names(correze3) <- c("ID_GEOFLA", "CODE_COMM", "INSEE_COM", "NOM_COMM","STATUT", "X_CHF_LIEU" ,"Y_CHF_LIEU", "X_CENTROID","Y_CENTROID","Z_MOYEN" ,  "SUPERFICIE","POPULATION","CODE_CANT", "CODE_ARR" ,"CODE_DEPT", "NOM_DEPT","CODE_REG", "NOM_REGION","DEAD1894", "DEAD1895", "DEAD1896", "DEAD1897", "DEAD1898", "DEAD1899", "DEAD1900", "DEAD1901", "DEAD1902", "DEAD1903", "DEAD1904", "DEAD1905", "DEAD1906")
+View(correze3@data)
+
+##NB dead in 1906
+correze@data$DEAD1906 <- "NA"
+correze@data$DEAD1906 <- as.numeric(correze@data$DEAD1906)
+correze@data[213,20] <- nrow(base[base$place=="uzerche"&base$annee=="1906",])
+correze@data[140,20] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1906",])
+correze@data[177,20] <-nrow(base[base$place=="espartignac"&base$annee=="1906",])
+correze@data[238,20] <-nrow(base[base$place=="eyburie"&base$annee=="1906",])
+correze@data[17,20] <-nrow(base[base$place=="masseret"&base$annee=="1906",])
+correze@data[23,20] <-nrow(base[base$place=="meilhards"&base$annee=="1906",])
+correze@data[216,20] <-nrow(base[base$place=="saint-ybard"&base$annee=="1906",])
+correze@data[68,20] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1906",])
+correze@data[10,20] <-nrow(base[base$place=="vigeois"&base$annee=="1906",])
+correze@data[179,20] <-nrow(base[base$place=="treignac"&base$annee=="1906",])
+
+##NB dead in 1905
+correze@data$DEAD1905 <- "NA"
+correze@data$DEAD1905 <- as.numeric(correze@data$DEAD1905)
+correze@data[213,21] <- nrow(base[base$place=="uzerche"&base$annee=="1905",])
+correze@data[140,21] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1905",])
+correze@data[177,21] <-nrow(base[base$place=="espartignac"&base$annee=="1905",])
+correze@data[238,21] <-nrow(base[base$place=="eyburie"&base$annee=="1905",])
+correze@data[17,21] <-nrow(base[base$place=="masseret"&base$annee=="1905",])
+correze@data[23,21] <-nrow(base[base$place=="meilhards"&base$annee=="1905",])
+correze@data[216,21] <-nrow(base[base$place=="saint-ybard"&base$annee=="1905",])
+correze@data[68,21] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1905",])
+correze@data[10,21] <-nrow(base[base$place=="vigeois"&base$annee=="1905",])
+correze@data[179,21] <-nrow(base[base$place=="treignac"&base$annee=="1905",])
+
+##NB dead in 1904
+correze@data$DEAD1904 <- "NA"
+correze@data$DEAD1904 <- as.numeric(correze@data$DEAD1904)
+correze@data[213,22] <- nrow(base[base$place=="uzerche"&base$annee=="1904",])
+correze@data[140,22] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1904",])
+correze@data[177,22] <-nrow(base[base$place=="espartignac"&base$annee=="1904",])
+correze@data[238,22] <-nrow(base[base$place=="eyburie"&base$annee=="1904",])
+correze@data[17,22] <-nrow(base[base$place=="masseret"&base$annee=="1904",])
+correze@data[23,22] <-nrow(base[base$place=="meilhards"&base$annee=="1904",])
+correze@data[216,22] <-nrow(base[base$place=="saint-ybard"&base$annee=="1904",])
+correze@data[68,22] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1904",])
+correze@data[10,22] <-nrow(base[base$place=="vigeois"&base$annee=="1904",])
+correze@data[179,22] <-nrow(base[base$place=="treignac"&base$annee=="1904",])
+
+##NB dead in 1903
+correze@data$DEAD1903 <- "NA"
+correze@data$DEAD1903 <- as.numeric(correze@data$DEAD1903)
+correze@data[213,23] <- nrow(base[base$place=="uzerche"&base$annee=="1903",])
+correze@data[140,23] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1903",])
+correze@data[177,23] <-nrow(base[base$place=="espartignac"&base$annee=="1903",])
+correze@data[238,23] <-nrow(base[base$place=="eyburie"&base$annee=="1903",])
+correze@data[17,23] <-nrow(base[base$place=="masseret"&base$annee=="1903",])
+correze@data[23,23] <-nrow(base[base$place=="meilhards"&base$annee=="1903",])
+correze@data[216,23] <-nrow(base[base$place=="saint-ybard"&base$annee=="1903",])
+correze@data[68,23] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1903",])
+correze@data[10,23] <-nrow(base[base$place=="vigeois"&base$annee=="1903",])
+correze@data[179,23] <-nrow(base[base$place=="treignac"&base$annee=="1903",])
+
+##NB dead in 1902
+correze@data$DEAD1902 <- "NA"
+correze@data$DEAD1902 <- as.numeric(correze@data$DEAD1902)
+correze@data[213,24] <- nrow(base[base$place=="uzerche"&base$annee=="1902",])
+correze@data[140,24] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1902",])
+correze@data[177,24] <-nrow(base[base$place=="espartignac"&base$annee=="1902",])
+correze@data[238,24] <-nrow(base[base$place=="eyburie"&base$annee=="1902",])
+correze@data[17,24] <-nrow(base[base$place=="masseret"&base$annee=="1902",])
+correze@data[23,24] <-nrow(base[base$place=="meilhards"&base$annee=="1902",])
+correze@data[216,24] <-nrow(base[base$place=="saint-ybard"&base$annee=="1902",])
+correze@data[68,24] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1902",])
+correze@data[10,24] <-nrow(base[base$place=="vigeois"&base$annee=="1902",])
+correze@data[179,24] <-nrow(base[base$place=="treignac"&base$annee=="1902",])
+
+##NB dead in 1901
+correze@data$DEAD1901 <- "NA"
+correze@data$DEAD1901 <- as.numeric(correze@data$DEAD1901)
+correze@data[213,25] <- nrow(base[base$place=="uzerche"&base$annee=="1901",])
+correze@data[140,25] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1901",])
+correze@data[177,25] <-nrow(base[base$place=="espartignac"&base$annee=="1901",])
+correze@data[238,25] <-nrow(base[base$place=="eyburie"&base$annee=="1901",])
+correze@data[17,25] <-nrow(base[base$place=="masseret"&base$annee=="1901",])
+correze@data[23,25] <-nrow(base[base$place=="meilhards"&base$annee=="1901",])
+correze@data[216,25] <-nrow(base[base$place=="saint-ybard"&base$annee=="1901",])
+correze@data[68,25] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1901",])
+correze@data[10,25] <-nrow(base[base$place=="vigeois"&base$annee=="1901",])
+correze@data[179,25] <-nrow(base[base$place=="treignac"&base$annee=="1901",])
+
+##NB dead in 1900
+correze@data$DEAD1900 <- "NA"
+correze@data$DEAD1900 <- as.numeric(correze@data$DEAD1900)
+correze@data[213,26] <- nrow(base[base$place=="uzerche"&base$annee=="1900",])
+correze@data[140,26] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1900",])
+correze@data[177,26] <-nrow(base[base$place=="espartignac"&base$annee=="1900",])
+correze@data[238,26] <-nrow(base[base$place=="eyburie"&base$annee=="1900",])
+correze@data[17,26] <-nrow(base[base$place=="masseret"&base$annee=="1900",])
+correze@data[23,26] <-nrow(base[base$place=="meilhards"&base$annee=="1900",])
+correze@data[216,26] <-nrow(base[base$place=="saint-ybard"&base$annee=="1900",])
+correze@data[68,26] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1900",])
+correze@data[10,26] <-nrow(base[base$place=="vigeois"&base$annee=="1900",])
+correze@data[179,26] <-nrow(base[base$place=="treignac"&base$annee=="1900",])
+
+##NB dead in 1899
+correze@data$DEAD1899 <- "NA"
+correze@data$DEAD1899 <- as.numeric(correze@data$DEAD1899)
+correze@data[213,27] <- nrow(base[base$place=="uzerche"&base$annee=="1899",])
+correze@data[140,27] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1899",])
+correze@data[177,27] <-nrow(base[base$place=="espartignac"&base$annee=="1899",])
+correze@data[238,27] <-nrow(base[base$place=="eyburie"&base$annee=="1899",])
+correze@data[17,27] <-nrow(base[base$place=="masseret"&base$annee=="1899",])
+correze@data[23,27] <-nrow(base[base$place=="meilhards"&base$annee=="1899",])
+correze@data[216,27] <-nrow(base[base$place=="saint-ybard"&base$annee=="1899",])
+correze@data[68,27] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1899",])
+correze@data[10,27] <-nrow(base[base$place=="vigeois"&base$annee=="1899",])
+correze@data[179,27] <-nrow(base[base$place=="treignac"&base$annee=="1899",])
+
+##NB dead in 1898
+correze@data$DEAD1898 <- "NA"
+correze@data$DEAD1898 <- as.numeric(correze@data$DEAD1898)
+correze@data[213,28] <- nrow(base[base$place=="uzerche"&base$annee=="1898",])
+correze@data[140,28] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1898",])
+correze@data[177,28] <-nrow(base[base$place=="espartignac"&base$annee=="1898",])
+correze@data[238,28] <-nrow(base[base$place=="eyburie"&base$annee=="1898",])
+correze@data[17,28] <-nrow(base[base$place=="masseret"&base$annee=="1898",])
+correze@data[23,28] <-nrow(base[base$place=="meilhards"&base$annee=="1898",])
+correze@data[216,28] <-nrow(base[base$place=="saint-ybard"&base$annee=="1898",])
+correze@data[68,28] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1898",])
+correze@data[10,28] <-nrow(base[base$place=="vigeois"&base$annee=="1898",])
+correze@data[179,28] <-nrow(base[base$place=="treignac"&base$annee=="1898",])
+
+##NB dead in 1897
+correze@data$DEAD1897 <- "NA"
+correze@data$DEAD1897 <- as.numeric(correze@data$DEAD1897)
+correze@data[213,29] <- nrow(base[base$place=="uzerche"&base$annee=="1897",])
+correze@data[140,29] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1897",])
+correze@data[177,29] <-nrow(base[base$place=="espartignac"&base$annee=="1897",])
+correze@data[238,29] <-nrow(base[base$place=="eyburie"&base$annee=="1897",])
+correze@data[17,29] <-nrow(base[base$place=="masseret"&base$annee=="1897",])
+correze@data[23,29] <-nrow(base[base$place=="meilhards"&base$annee=="1897",])
+correze@data[216,29] <-nrow(base[base$place=="saint-ybard"&base$annee=="1897",])
+correze@data[68,29] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1897",])
+correze@data[10,29] <-nrow(base[base$place=="vigeois"&base$annee=="1897",])
+correze@data[179,29] <-nrow(base[base$place=="treignac"&base$annee=="1897",])
+
+##NB dead in 1896
+correze@data$DEAD1896 <- "NA"
+correze@data$DEAD1896 <- as.numeric(correze@data$DEAD1896)
+correze@data[213,30] <- nrow(base[base$place=="uzerche"&base$annee=="1896",])
+correze@data[140,30] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1896",])
+correze@data[177,30] <-nrow(base[base$place=="espartignac"&base$annee=="1896",])
+correze@data[238,30] <-nrow(base[base$place=="eyburie"&base$annee=="1896",])
+correze@data[17,30] <-nrow(base[base$place=="masseret"&base$annee=="1896",])
+correze@data[23,30] <-nrow(base[base$place=="meilhards"&base$annee=="1896",])
+correze@data[216,30] <-nrow(base[base$place=="saint-ybard"&base$annee=="1896",])
+correze@data[68,30] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1896",])
+correze@data[10,30] <-nrow(base[base$place=="vigeois"&base$annee=="1896",])
+correze@data[179,30] <-nrow(base[base$place=="treignac"&base$annee=="1896",])
+
+##NB dead in 1895
+correze@data$DEAD1895 <- "NA"
+correze@data$DEAD1895 <- as.numeric(correze@data$DEAD1895)
+correze@data[213,31] <- nrow(base[base$place=="uzerche"&base$annee=="1895",])
+correze@data[140,31] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1895",])
+correze@data[177,31] <-nrow(base[base$place=="espartignac"&base$annee=="1895",])
+correze@data[238,31] <-nrow(base[base$place=="eyburie"&base$annee=="1895",])
+correze@data[17,31] <-nrow(base[base$place=="masseret"&base$annee=="1895",])
+correze@data[23,31] <-nrow(base[base$place=="meilhards"&base$annee=="1895",])
+correze@data[216,31] <-nrow(base[base$place=="saint-ybard"&base$annee=="1895",])
+correze@data[68,31] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1895",])
+correze@data[10,31] <-nrow(base[base$place=="vigeois"&base$annee=="1895",])
+correze@data[179,31] <-nrow(base[base$place=="treignac"&base$annee=="1895",])
+
+##NB dead in 1894
+correze@data$DEAD1894 <- "NA"
+correze@data$DEAD1894 <- as.numeric(correze@data$DEAD1894)
+correze@data[213,32] <- nrow(base[base$place=="uzerche"&base$annee=="1894",])
+correze@data[140,32] <-nrow(base[base$place=="condat-sur-ganaveix"&base$annee=="1894",])
+correze@data[177,32] <-nrow(base[base$place=="espartignac"&base$annee=="1894",])
+correze@data[238,32] <-nrow(base[base$place=="eyburie"&base$annee=="1894",])
+correze@data[17,32] <-nrow(base[base$place=="masseret"&base$annee=="1894",])
+correze@data[23,32] <-nrow(base[base$place=="meilhards"&base$annee=="1894",])
+correze@data[216,32] <-nrow(base[base$place=="saint-ybard"&base$annee=="1894",])
+correze@data[68,32] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1894",])
+correze@data[10,32] <-nrow(base[base$place=="vigeois"&base$annee=="1894",])
+correze@data[179,32] <-nrow(base[base$place=="treignac"&base$annee=="1894",])
+
