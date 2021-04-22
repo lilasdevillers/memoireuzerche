@@ -353,3 +353,30 @@ correze@data[68,32] <-nrow(base[base$place=="salon-la-tour"&base$annee=="1894",]
 correze@data[10,32] <-nrow(base[base$place=="vigeois"&base$annee=="1894",])
 correze@data[179,32] <-nrow(base[base$place=="treignac"&base$annee=="1894",])
 
+map <- map_data("world",region = c("france","germany","italy","UK","spain","poland","romania","netherlands","greece","portugal","belgium","czechia","hungary","sweden","bulgaria","denmark","slovakia","finland","ireland","croatia","lithuania","latvia","slovenia","estonia","cyprus","luxembourg","malta") )
+p_map <- ggplot(data = map,aes(x = long, y = lat,group=group,fill = region)) + geom_polygon(col="grey") + coord_equal()+ scale_fill_discrete(name = "Pays")
+p_map
+world <- map_data("world")
+
+#map métier --> proportion d'agri
+
+correze2$prop_cultivateur <- "NA"
+correze2$prop_cultivateur <- as.numeric(correze2$prop_cultivateur)
+base$place <- str_to_upper(base$place)
+
+prop_metier_ville <- function(x,y){
+        100*sum(base$job==x&base$place==y)/sum(base$place==y)
+}
+v <- 1
+for(v in (1:length(VILLE))){
+        correze2@data$prop_cultivateur[correze2@data$NOM_COMM==VILLE[v]] <- prop_metier_ville("cultivateur",VILLE[v])
+}
+
+nclr <- 4
+plotclr <- brewer.pal(nclr,"RdPu")
+plotclr <- plotclr[nclr:1] # reorder colors
+
+colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="pretty"),plotclr)
+plot(correze2,col=colcodecult)
+legend(x=0.7057949,y=45.62726,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
+       fill=attr(colcodecult, "palette"), cex=0.6, bty="n")
