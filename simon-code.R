@@ -68,37 +68,24 @@ summary(dind)
 
 ######illustration with a figure#######create two groups
 
-t_trend <- aggregate(age~annee,base,mean)
-t_trend$annee <- as.Date(t_trend$annee, format='%Y') 
-ggplot(t_trend, aes(x = annee, y = age) +
-  geom_point() +
+ctrend <- aggregate(age~annee*town,base,mean)
+ctrend$group <- "CG"
+ctrend$group[ctrend$town=="uzerche"] <- "TG"
+ctrend$annee <- as.Date(ctrend$annee, format='%Y') 
+ggplot(ctrend, aes(x = annee, y = age, colour= group)) +
+  geom_point() + 
+  geom_vline(xintercept=ctrend$annee[11], linetype="dashed", color="blue")+
   geom_smooth(method=lm, se=FALSE)+
+  ggtitle("Common time trend")+
+  labs(y="Average death age", x="Years")+
+  theme_update(plot.title=element_text(hjust=0.5))
 
-uzerche<-base %>% filter(base$town=="uzerche")
-utrend <- aggregate(age~annee,uzerche,mean)
-utrend$annee <- as.Date(utrend$annee, format='%Y') 
-ggplot(utrend, aes(x = annee, y = age)) +
-  geom_point() +
-  geom_smooth(method=lm, se=FALSE)
+#This is a totally wrong way to represent it, the linear regression is misspecified (we can set method free and represent se)
+#It also shows that observations for the CG are really dispersed than for the TG, the choice of groups doesn't make sense
 
-nonuzerche<-base %>% filter(base$town!="uzerche")
-nutrend <- aggregate(age~annee,nonuzerche,mean)
-nutrend$annee <- as.Date(nutrend$annee, format='%Y') 
-ggplot(nutrend, aes(x = annee, y = age)) +
-  geom_point() +
-  geom_smooth(method=lm, se=FALSE)
 
-ggplot(nutrend, aes(x = annee, y = age)) +
-  ggplot(utrend, aes(x = annee, y = age)) +
-  geom_point() +
-  geom_smooth(method=lm, se=FALSE)
 ########common trend assumption placebo test (make a Diff-in-Diff in a period not affected by the change) only before and only after (should be nul) ############
 
-
-############variation annuels###########
-base$annee <- substr(x = base$date,1,4)
-
-lm(age~pollution*annee,base)
 
 ####################Lingère########################
 base$pj <- 0
@@ -115,6 +102,11 @@ base$age<-round(base$age,0)
 
 
 ##############################Data description figures###########################
+#default theme
+#centre title:  
+theme_update(plot.title=element_text(hjust=0.5))
+
+
 
 #####Time trend: time series first insight
 t_trend <- aggregate(age~annee,base,mean)
