@@ -75,11 +75,14 @@ correze <- readOGR(dsn="19-correze", layer="19-")
 correze <- spTransform(correze, CRS("+proj=longlat"))
 correze@data$id <- rownames(correze@data)
 #which area is interesting for us ?
-plot(correze, col = "lightgrey")
+plot(correze, col = "lightgrey",main="Map of Correze",cex=2)
 canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24|correze@data$CODE_CANT==22
 plot(correze[canton, ], col = "turquoise", add = TRUE)
+legend(x=1.039107,y=45.37074,legend=c("Cantons of Uzerche, Vigeois et Seilhac"),
+       fill="turquoise", cex=1.4, bty="n")
 points(coordinates(correze[correze@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]), 
        pch=20, col="red", cex=1)
+
 #focusing on this area and adding Vezere
 plot(correze[canton,],main="Map of Correze")
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]), pch=20, 
@@ -112,6 +115,15 @@ for(d in (1:length(date))){
     }
   }
 }
+
+for(v in (1:length(VILLE))){
+  for(i in (1:nrow(correze2@data))){
+    if(correze2@data$NOM_COMM[i]==VILLE[v]){
+      correze2@data[i,ncol_correze2+1] <- nrow(base[base$place==VILLE[v],])
+    }
+  }
+}
+
 names(correze2) <- c("ID_GEOFLA", "CODE_COMM", "INSEE_COM", "NOM_COMM","STATUT", "X_CHF_LIEU" ,"Y_CHF_LIEU", "X_CENTROID","Y_CENTROID","Z_MOYEN" ,  "SUPERFICIE","POPULATION","CODE_CANT", "CODE_ARR" ,"CODE_DEPT", "NOM_DEPT","CODE_REG", "NOM_REGION","id","DEAD1894", "DEAD1895", "DEAD1896", "DEAD1897", "DEAD1898", "DEAD1899", "DEAD1900", "DEAD1901", "DEAD1902", "DEAD1903", "DEAD1904", "DEAD1905", "DEAD1906")
 View(correze2@data)
 base$place <- str_to_lower(base$place)
@@ -124,19 +136,19 @@ nclr <- 4
 plotclr <- brewer.pal(nclr,"RdPu")
 plotclr <- plotclr[nclr:1] # reorder colors
 
-colcode1906 <- findColours(classIntervals(correze2@data$DEAD1906,nclr,style="equal"),plotclr)
-colcode1905 <- findColours(classIntervals(correze2@data$DEAD1905,nclr,style="equal"),plotclr)
-colcode1904 <- findColours(classIntervals(correze2@data$DEAD1904,nclr,style="equal"),plotclr)
-colcode1903 <- findColours(classIntervals(correze2@data$DEAD1903,nclr,style="equal"),plotclr)
-colcode1902 <- findColours(classIntervals(correze2@data$DEAD1902,nclr,style="equal"),plotclr)
-colcode1901 <- findColours(classIntervals(correze2@data$DEAD1901,nclr,style="equal"),plotclr)
-colcode1900 <- findColours(classIntervals(correze2@data$DEAD1900,nclr,style="equal"),plotclr)
-colcode1899 <- findColours(classIntervals(correze2@data$DEAD1899,nclr,style="equal"),plotclr)
-colcode1898 <- findColours(classIntervals(correze2@data$DEAD1898,nclr,style="equal"),plotclr)
-colcode1897 <- findColours(classIntervals(correze2@data$DEAD1897,nclr,style="equal"),plotclr)
-colcode1896 <- findColours(classIntervals(correze2@data$DEAD1896,nclr,style="equal"),plotclr)
-colcode1895 <- findColours(classIntervals(correze2@data$DEAD1895,nclr,style="equal"),plotclr)
-colcode1894 <- findColours(classIntervals(correze2@data$DEAD1894,nclr,style="equal"),plotclr)
+colcode1906 <- findColours(classIntervals(correze2@data$DEAD1906,nclr,style="pretty"),plotclr)
+colcode1905 <- findColours(classIntervals(correze2@data$DEAD1905,nclr,style="pretty"),plotclr)
+colcode1904 <- findColours(classIntervals(correze2@data$DEAD1904,nclr,style="pretty"),plotclr)
+colcode1903 <- findColours(classIntervals(correze2@data$DEAD1903,nclr,style="pretty"),plotclr)
+colcode1902 <- findColours(classIntervals(correze2@data$DEAD1902,nclr,style="pretty"),plotclr)
+colcode1901 <- findColours(classIntervals(correze2@data$DEAD1901,nclr,style="pretty"),plotclr)
+colcode1900 <- findColours(classIntervals(correze2@data$DEAD1900,nclr,style="pretty"),plotclr)
+colcode1899 <- findColours(classIntervals(correze2@data$DEAD1899,nclr,style="pretty"),plotclr)
+colcode1898 <- findColours(classIntervals(correze2@data$DEAD1898,nclr,style="pretty"),plotclr)
+colcode1897 <- findColours(classIntervals(correze2@data$DEAD1897,nclr,style="pretty"),plotclr)
+colcode1896 <- findColours(classIntervals(correze2@data$DEAD1896,nclr,style="pretty"),plotclr)
+colcode1895 <- findColours(classIntervals(correze2@data$DEAD1895,nclr,style="pretty"),plotclr)
+colcode1894 <- findColours(classIntervals(correze2@data$DEAD1894,nclr,style="pretty"),plotclr)
 
 #Map of 1906
 plot(correze2,col=colcode1906)
@@ -203,6 +215,28 @@ legend(x=0.7057949,y=45.62726,title="Number of deads in 1895",legend=names(attr(
 plot(correze2,col=colcode1894)
 legend(x=0.7057949,y=45.62726,title="Number of deads in 1894",legend=names(attr(colcode1894,"table")),
        fill=attr(colcode1894, "palette"), cex=0.6, bty="n")
+
+#Map of cultivator %
+correze2$prop_cultivateur <- "NA"
+correze2$prop_cultivateur <- as.numeric(correze2$prop_cultivateur)
+base$place <- str_to_upper(base$place)
+v <- 1
+for(v in (1:length(VILLE))){
+  correze2@data$prop_cultivateur[correze2@data$NOM_COMM==VILLE[v]] <- prop_metier_ville("cultivateur",VILLE[v])
+}
+
+nclr <- 4
+plotclr <- brewer.pal(nclr,"RdPu")
+plotclr <- plotclr[nclr:1] # reorder colors
+
+colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="pretty"),plotclr)
+plot(correze2,col=colcodecult)
+legend(x=0.7057949,y=45.62726,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
+       fill=attr(colcodecult, "palette"), cex=0.6, bty="n")
+
+prop_metier_ville <- function(x,y){
+  100*sum(base$job==x&base$place==y)/sum(base$place==y)
+}
 
 ###Regressions :
 
