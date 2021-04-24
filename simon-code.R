@@ -111,7 +111,21 @@ ggplot(ctrend_2, aes(x = year, y = age, colour= group)) +
   labs(y="Average death age", x="Years")+
   theme_update(plot.title=element_text(hjust=0.5))
 
+######two treaments over time which we assume to be of the "same kind"
 
+names(base)[names(base) == "polluted"] <- "TG"
+
+#people exposed to the pollution of the paper mill only
+base$post_paper<-0
+base$post_paper[base$year>=1893]<-1
+base$post_paper[base$year>=1896]<-0
+#people who were exposed in their lifetime to both pollutions
+base$post_papertan<-0
+base$post_papertan[base$year>=1896]<-1
+
+cum_did<-lm(age~TG*(post_paper + post_papertan), base)
+
+summary.lm(cum_did)
 ##############################Data description figures###########################
 #default theme
 #centre title:  
