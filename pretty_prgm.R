@@ -2,31 +2,24 @@
 
 setwd("C:/Users/ger0n.DESKTOP-HBPHRVU/Desktop/Mageco/M?moire/memoire r")
 
-library(dplyr)
-library(stringr)
-library(ggplot2)
-library(lubridate)
-library(tidyr)
-library(magrittr)
+library(xtable);library(dplyr);library(stringr);library(ggplot2);library(lubridate);library(tidyr);library(magrittr)
 #Open libraries
 
 #Useful commands
-base <- read.csv("uzerche_deces_1894_1906_test.csv", sep=";")
+base <- read.csv("uzercheultime.csv", sep=";")
 save(base,file = "uzerche_test.RData")
 load("uzerche_test.RData")
 save(river,file="river_vezere.RData")
 load("river_vezere.RData")
 save(correze2,file="map_correze_canton_data.RData")
 load("map_correze_canton_data.RData")
-
-
-View(base)
+load("uzercheultime.RData")
 
 ###
 
 ###Putting in form :
 
-base <- read.csv("uzerche_deces_1874_1906_test.csv", sep=";")
+base <- read.csv("uzerchebase.csv", sep=";")
 base <-base[,c(1:6)]
 colnames(base) <- c("name","gender","job","age","place","date")
 names(base) <- tolower(names(base))
@@ -36,6 +29,8 @@ base$gender <- as.numeric(base$gender)
 base$age <- as.numeric(base$age)
 base$date <- paste(substr(base$date, 7,11), substr(base$date, 4,5),  substr(base$date, 1,2), sep="-")
 base$date <- as.Date(base$date, format="%Y-%m-%d")
+base$annee <- substr(x = base$date,1,4)
+base$month <- substr(x = base$date,6,7)
 summary(base)
 
 #standardizing city's names
@@ -46,6 +41,7 @@ for(i in (1:nrow(base)) ){
 i<-1
 for(i in (1:nrow(base)) ){
   if(base[i,5]=="st ybard"){base[i,5] <- "saint-ybard"}
+  if(base[i,5]=="saint ybard"){base[i,5] <- "saint-ybard"}
 }
 i<-1
 for(i in (1:nrow(base)) ){
@@ -238,49 +234,77 @@ prop_metier_ville <- function(x,y){
   100*sum(base$job==x&base$place==y)/sum(base$place==y)
 }
 
+###Population exposed to pollution --> non-cumulative effect
+base$pollution <- 0
+base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
+
+### Population exposed to pollution --> cumulative effect
+##openning date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
+base$tan1 <- base$pollution
+base$tan2 <- 0
+base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
+base$tan2[base$place=="vigeois"&base$year<=1896] <- 1
+base$paper <- 0
+base$paper[base$place=="uzerche"&base$year<=1893] <- 1
+base$paper[base$place=="vigeois"&base$year<=1893] <- 1
+
+#Regrouping places in categories
+base$town <- c("other")
+base$town[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
+base$town[base$place=="espartignac"] <- c("espartignac")
+base$town[base$place=="eyburie"] <- c("eyburie")
+base$town[base$place=="masseret"] <- c("masseret")
+base$town[base$place=="meilhards"] <- c("meilhards")
+base$town[base$place=="saint-ybard"] <- c("saint-ybard")
+base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
+base$town[base$place=="uzerche"] <- c("uzerche")
+base$town[base$place=="vigeois"] <- c("vigeois")
+sort(unique(base$town))
+
 ###Regressions :
 
 ##Regression 1 : date of death
-#creating data frame with data that we want
-lieu_po <- data.frame(matrix(nrow=0, ncol=1))
-colnames(lieu_po) <- c("pollution")
-lieu_po
-i <-1
-for (i in 1:3536){
-  if(base[i,5]=="uzerche"){
-    lieu_po <- rbind(lieu_po, c(1))
-  }
-  else {
-    lieu_po <- rbind(lieu_po, c(0))
-  }
-}
-
-lifetime <- data.frame(matrix(nrow=0, ncol=1))
-colnames(lifetime) <- c("lifetime")
-i <-1
-for (i in 1:3536){
-  lifetime <- rbind(lifetime, base[i,4])
-}
-#useless --> base$age => Must be reviewed
-lifetime <- cbind(lifetime, lieu_po)
 
 #Linear regression + graphic
-lm.lifetime <-lm(age_deces~pollution,lifetime)
-summary.lm(lm.lifetime)
-ggplot(data = lifetime, aes(x = pollution, y = age_deces)) +
-  geom_point()+
-  stat_smooth(method = "lm", level = 0.95)
+lm.base <-lm(age~pollution,base)
+summary.lm(lm.base)
+ggplot(data = base, aes(x = pollution, y = age)) +
+  geom_point() +
+  stat_smooth(method = "lm", level = 0.95) +
+  labs(y="Death age", x="Exposure to pollution (1=exposed, 0=not exposed)") +
+  ggtitle("Regression of death age on pollution from 1883 to 1906")
+xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
 
-##Regression 2 : date of death for kids (<= 3 years old)
-#Taking values
-kids <- data.frame(matrix(nrow=0, ncol=2))
-kids <- cbind(lifetime)
-colnames(kids) <- c("lifetime","polluated_place")
-kids <-filter(lifetime,lifetime<=3)
+#Regression 2 : date of death cumulative effect
 
-#Linear regression
-lm.kids <-lm(lifetime~polluated_place,kids)
+lm.cum <-lm(age~tan1+tan2+paper,base)
+summary.lm(lm.cum)
+ggplot(data = base, aes(x = tan1+tan2+paper, y = age)) +
+  geom_point() +
+  stat_smooth(method = "lm", level = 0.95) +
+  labs(y="Death age", x="Exposure to cumulative pollution (1=exposed, 0=not exposed)") +
+  ggtitle("Regression of death age on cumulative pollution from 1883 to 1906")
+xtable(x = summary.lm(lm.cum), caption = "Regression of death age on cumulative pollution")
+
+##Regression 3 : date of death for kids (<= 1 years old)
+kids <- filter(base, base$age<=1)
+View(kids)
+lm.kids <-lm(age~pollution,kids)
 summary.lm(lm.kids)
+ggplot(data = kids, aes(x = pollution, y = age)) +
+  geom_point() + stat_smooth(method = "lm", level = 0.95)+ ggtitle("Regression of death age on pollution for kids (1 years old and less)")+ labs(y="Death age", x="Exposure to pollution (1=exposed, 0=not exposed)")
+qplot(seq_along(lm.kids$residuals), lm.kids$residuals) +
+  xlab("") + ylab("Residus")
+lm.kids2 <- lm(age~pollution+month,kids)
+summary.lm(lm.kids2)
+lm.kids3 <- lm(age~pollution*month,kids)
+summary(lm.kids3)
+xtable(summary.lm(lm.kids), caption = "Regression of age of death on pollution for kids (1 years old and less)")
+xtable(summary.lm(lm.kids2), caption = "Regression of age of death on pollution and month for kids (1 years old and less)")
+xtable(summary.lm(lm.kids3), caption = "Cross-regression of age of death on pollution and month for kids (1 years old and less)")
+
+kidsa <- kids[kids$place=="condat-sur-ganaveix"|kids$place=="espartignac"|kids$place=="eyburie"|kids$place=="masseret"|kids$place=="meilhards"|kids$place=="saint-ybard"|kids$place=="salon-la-tour"|kids$place=="uzerche"|kids$place=="treignac"|kids$place=="vigeois",]
+kidsb <- kids[kids$place=="condat-sur-ganaveix"|kids$place=="espartignac"|kids$place=="eyburie"|kids$place=="masseret"|kids$place=="meilhards"|kids$place=="saint-ybard"|kids$place=="salon-la-tour"|kids$place=="uzerche"|kids$place=="treignac",]
 
 ##Regression 3 : mortality rate (taux brut de mortalite tbm)
 #creating mortality rate function. 
