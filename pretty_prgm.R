@@ -19,7 +19,7 @@ load("uzercheultime.RData")
 
 ###Putting in form :
 
-base <- read.csv("uzerchebase.csv", sep=";")
+base <- read.csv("uzerche_deces_1883_1906.csv", sep=";")
 base <-base[,c(1:6)]
 colnames(base) <- c("name","gender","job","age","place","date")
 names(base) <- tolower(names(base))
@@ -238,6 +238,15 @@ prop_metier_ville <- function(x,y){
 base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 
+#which individuals are exposed to pollution between 1883 and 1906 ?
+base$tan1 <- base$pollution
+base$tan2 <- 0
+base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
+base$tan2[base$place=="vigeois"&base$year<=1896] <- 1
+base$paper <- 0
+base$paper[base$place=="uzerche"&base$year<=1893] <- 1
+base$paper[base$place=="vigeois"&base$year<=1893] <- 1
+
 #Regrouping places in categories
 base$town <- c("other")
 base$town[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
@@ -253,7 +262,7 @@ sort(unique(base$town))
 
 ###Regressions :
 
-##Regression 1 : date of death
+##Regression 1 : date of death (non cumulative pollution)
 
 #Linear regression + graphic
 lm.base <-lm(age~pollution,base)
@@ -265,7 +274,11 @@ ggplot(data = base, aes(x = pollution, y = age)) +
   ggtitle("Regression of death age on pollution from 1883 to 1906")
 xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
 
-##Regression 2 : date of death for kids (<= 1 years old)
+##Regression 2 : cumulative pollution
+lm.cum <-lm(age~tan1+tan2+paper,base)
+summary.lm(lm.cum)
+
+##Regression 3 : date of death for kids (<= 1 years old)
 kids <- filter(base, base$age<=1)
 View(kids)
 lm.kids <-lm(age~pollution,kids)
