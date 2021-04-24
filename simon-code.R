@@ -9,14 +9,26 @@ library(tidyverse)
 library(hrbrthemes)
 library(viridis)
 library(ggridges)
+###traitements de la base######
 base$year <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
 
 base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
+##we can change this later and just exclude Vigeois
 
-#######Create variable for the places of interest#######
+
+###problem of names
+for (town in 1:nrow(base)){
+  if (base$place[town]=="condat"){base$place[town]<-"condat-sur-ganaveix"}
+}
+
+###delete the soldier
+base<-slice(base, -which(base$year==1871))
+
+
+#######Create variable for the places of interest
 base$town <- c("other")
 base$town[base$place=="condat-sur-ganaveix"] <- c("condat-sur-ganaveix")
 base$town[base$place=="espartignac"] <- c("espartignac")
@@ -28,6 +40,10 @@ base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
 base$town[base$place=="uzerche"] <- c("uzerche")
 base$town[base$place=="vigeois"] <- c("vigeois")
 sort(unique(base$town))
+
+
+
+
 
 ######################seasonality###################
 base$pollution <- 0
@@ -57,24 +73,21 @@ summary(lm(age~pollution,base))
 
 ##############diff-in-diff post#############
 base$post<-0
-base$post[base$annee>1893]<-1
+base$post[base$year>1893]<-1
 
-base$pollution <- 0
-base$pollution[base$place=="uzerche"] <- 1
-
-dind<-lm(age~pollution*post,base)
-summary(dind)
+did<-lm(age~pollution*post,base)
+summary(did)
 ###########################################
 
 ######illustration with a figure#######create two groups
 
-ctrend <- aggregate(age~annee*town,base,mean)
+ctrend <- aggregate(age~year*town,base,mean)
 ctrend$group <- "CG"
 ctrend$group[ctrend$town=="uzerche"] <- "TG"
-ctrend$annee <- as.Date(ctrend$annee, format='%Y') 
-ggplot(ctrend, aes(x = annee, y = age, colour= group)) +
+ctrend$year <- as.Date(ctrend$year, format='%Y') 
+ggplot(ctrend, aes(x = year, y = age, colour= group)) +
   geom_point() + 
-  geom_vline(xintercept=ctrend$annee[11], linetype="dashed", color="blue")+
+  geom_vline(xintercept=ctrend$year[11], linetype="dashed", color="blue")+
   geom_smooth(method=lm, se=FALSE)+
   ggtitle("Common time trend")+
   labs(y="Average death age", x="Years")+
@@ -85,6 +98,19 @@ ggplot(ctrend, aes(x = annee, y = age, colour= group)) +
 
 
 ########common trend assumption placebo test (make a Diff-in-Diff in a period not affected by the change) only before and only after (should be nul) ############
+placebo <- aggregate(age~year*town,base,mean)
+placebo$group <- "CG"
+placebo$group[placebo$town=="uzerche"] <- "TG"
+placebo$year <- as.Date(placebo$year, format='%Y') 
+
+placebo <- filter(placebo, placebo$year<1893-04-24)
+ggplot(placebo, aes(x = year, y = age, colour= group)) +
+  geom_point() + 
+  geom_vline(xintercept=placebo$year[11], linetype="dashed", color="blue")+
+  geom_smooth(method=lm, se=FALSE)+
+  ggtitle("Common time trend")+
+  labs(y="Average death age", x="Years")+
+  theme_update(plot.title=element_text(hjust=0.5))
 
 
 ####################Lingère########################
@@ -109,9 +135,9 @@ theme_update(plot.title=element_text(hjust=0.5))
 
 
 #####Time trend: time series first insight
-t_trend <- aggregate(age~annee,base,mean)
-t_trend$annee <- as.Date(t_trend$annee, format='%Y') 
-ggplot(t_trend, aes(x = annee, y = age)) +
+t_trend <- aggregate(age~year,base,mean)
+t_trend$year <- as.Date(t_trend$year, format='%Y') 
+ggplot(t_trend, aes(x = year, y = age)) +
   geom_point() +
   geom_smooth(method=lm, se=FALSE)+
 labs(x='years', y='average death age') + ggtitle ("Average death age over time")
