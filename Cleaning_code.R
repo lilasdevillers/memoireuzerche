@@ -16,15 +16,9 @@ summary(base)
 i<-1
 for(i in (1:nrow(base)) ){
   if(base[i,5]=="salon"){base[i,5] <- "salon-la-tour"}
-}
-i<-1
-for(i in (1:nrow(base)) ){
   if(base[i,5]=="st ybard"){base[i,5] <- "saint-ybard"}
-}
-
-i<-1
-for(i in (1:nrow(base)) ){
   if(base[i,5]=="condat"){base[i,5] <- "condat-sur-ganaveix"}
+  if(base[i,5]=="st jal"){base[i,5] <- "st_jal"}
 }
 
 i<-1
@@ -40,8 +34,13 @@ for (i in (1:nrow(base)) ){
 ###whitespace####
 i<-1
 for(i in (1:nrow(base)) ){
-  if(base[i,3]==" cultivateur"){base[i,3] <- "cultivateur"}
+  
+  if(base[i,3]==" cultivateur"){
+    print(base[i,3])
+    base[i,3] <- "cultivateur"}
 }
+
+levels(as.factor(base$job))
 
 sort(unique(base$job))
 #Doesn't work

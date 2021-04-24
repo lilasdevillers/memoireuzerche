@@ -132,18 +132,22 @@ ggplot(data = lifetime, aes(x = pollution, y = age_deces)) +
   geom_point() +
   stat_smooth(method = "lm", level = 0.95)
 
-?kids <- data.frame(matrix(nrow=0, ncol=2))
-kids <- cbind(lifetime)
-colnames(kids) <- c("age_deces_enfant","pollution")
-filter(lifetime, lifetime<=3)
-kids <-filter(lifetime,lifetime<=3)
-lm.kids <-lm(age_deces_enfant~pollution,kids)
+###Corrélation mortalité infantile
+
+kids <- data.frame(matrix(nrow=0, ncol=2))
+kids <- filter(base, base$age<=1)
+View(kids)
+lm.kids <-lm(age~pollution,kids)
 summary.lm(lm.kids)
-ggplot(data = kids, aes(x = pollution, y = age_deces_enfant)) +
-  geom_point() +
-  stat_smooth(method = "lm", level = 0.95)
+ggplot(data = kids, aes(x = pollution, y = age)) +
+  geom_point() + stat_smooth(method = "lm", level = 0.95)+ ggtitle("Regression of age of death on pollution for kids (1 years old and less)")+ labs(y="Death age", x="Exposition to pollution (1=exposed, 0=not exposed)")
 qplot(seq_along(lm.kids$residuals), lm.kids$residuals) +
-  xlab("") + ylab("R?sidus")
+  xlab("") + ylab("Residus")
+lm.kids2 <- lm(age~pollution+month,kids)
+lm.kids3 <- lm(age~pollution*month,kids)
+xtable(summary.lm(lm.kids), caption = "Regression of age of death on pollution for kids (1 years old and less)")
+xtable(summary.lm(lm.kids2), caption = "Regression of age of death on pollution and month for kids (1 years old and less)")
+xtable(summary.lm(lm.kids3), caption = "Cross-regression of age of death on pollution and month for kids (1 years old and less)")
 
 nrow(base)
 esp <- data.frame(matrix(nrow=1, ncol=2))
@@ -277,6 +281,10 @@ nrow(filter (base,base$place == ville[5], year(base$date) == 1906))
 
 mode(year(base$date))
 mode(date)
+
+##Corrélation mortalité infantile
+
+
 
 #corr?lation avec le taux de mortalit?
 tbm_ville <- cbind(tbm_ville,c(0,0,0,0,0,0,0,1))
@@ -668,4 +676,10 @@ View(correze2@data)
 
 #carte avec les routes
 routeslimou<-readShapeLines("limousin/roads.shp",proj4string=CRS("+proj=longlat"))
+
+#Exporter en Latex
+library(xtable)
+
+tab<-xtable(s, caption= "summary statistics of air pollution data", 
+            align=c("|c","|c","|c","|c","|c|"))
 

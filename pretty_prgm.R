@@ -234,19 +234,9 @@ prop_metier_ville <- function(x,y){
   100*sum(base$job==x&base$place==y)/sum(base$place==y)
 }
 
-###Population exposed to pollution --> non-cumulative effect
+###Population exposed to pollution
 base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
-
-### Population exposed to pollution --> cumulative effect
-##openning date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
-base$tan1 <- base$pollution
-base$tan2 <- 0
-base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
-base$tan2[base$place=="vigeois"&base$year<=1896] <- 1
-base$paper <- 0
-base$paper[base$place=="uzerche"&base$year<=1893] <- 1
-base$paper[base$place=="vigeois"&base$year<=1893] <- 1
 
 #Regrouping places in categories
 base$town <- c("other")
@@ -275,18 +265,7 @@ ggplot(data = base, aes(x = pollution, y = age)) +
   ggtitle("Regression of death age on pollution from 1883 to 1906")
 xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
 
-#Regression 2 : date of death cumulative effect
-
-lm.cum <-lm(age~tan1+tan2+paper,base)
-summary.lm(lm.cum)
-ggplot(data = base, aes(x = tan1+tan2+paper, y = age)) +
-  geom_point() +
-  stat_smooth(method = "lm", level = 0.95) +
-  labs(y="Death age", x="Exposure to cumulative pollution (1=exposed, 0=not exposed)") +
-  ggtitle("Regression of death age on cumulative pollution from 1883 to 1906")
-xtable(x = summary.lm(lm.cum), caption = "Regression of death age on cumulative pollution")
-
-##Regression 3 : date of death for kids (<= 1 years old)
+##Regression 2 : date of death for kids (<= 1 years old)
 kids <- filter(base, base$age<=1)
 View(kids)
 lm.kids <-lm(age~pollution,kids)
