@@ -98,15 +98,14 @@ ggplot(ctrend, aes(x = year, y = age, colour= group)) +
 
 
 ########Try to find a thiner control group ############
-placebo <- aggregate(age~year*town,base,mean)
-placebo$group[palcebo$town==] <- "CG"
-placebo$group[placebo$town=="uzerche"] <- "TG"
-placebo$year <- as.Date(placebo$year, format='%Y') 
-
-placebo <- filter(placebo, placebo$year<1893-04-24)
-ggplot(placebo, aes(x = year, y = age, colour= group)) +
+ctrend_2 <- aggregate(age~year*town,base,mean)
+ctrend_2$group[ctrend_2$town=="salon-la-tour"] <- "CG"
+ctrend_2$group[ctrend_2$town=="uzerche"] <- "TG"
+ctrend_2<-filter(ctrend_2, ctrend_2$group=="TG"|ctrend_2$group=="CG" )
+ctrend_2$year <- as.Date(ctrend_2$year, format='%Y') 
+ggplot(ctrend_2, aes(x = year, y = age, colour= group)) +
   geom_point() + 
-  geom_vline(xintercept=placebo$year[11], linetype="dashed", color="blue")+
+  geom_vline(xintercept=ctrend_2$year[11], linetype="dashed", color="blue")+
   geom_smooth(method=lm, se=FALSE)+
   ggtitle("Common time trend")+
   labs(y="Average death age", x="Years")+
