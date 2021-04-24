@@ -97,9 +97,9 @@ ggplot(ctrend, aes(x = year, y = age, colour= group)) +
 #It also shows that observations for the CG are really dispersed than for the TG, the choice of groups doesn't make sense
 
 
-########common trend assumption placebo test (make a Diff-in-Diff in a period not affected by the change) only before and only after (should be nul) ############
+########Try to find a thiner control group ############
 placebo <- aggregate(age~year*town,base,mean)
-placebo$group <- "CG"
+placebo$group[palcebo$town==] <- "CG"
 placebo$group[placebo$town=="uzerche"] <- "TG"
 placebo$year <- as.Date(placebo$year, format='%Y') 
 
@@ -111,20 +111,6 @@ ggplot(placebo, aes(x = year, y = age, colour= group)) +
   ggtitle("Common time trend")+
   labs(y="Average death age", x="Years")+
   theme_update(plot.title=element_text(hjust=0.5))
-
-
-####################Lingère########################
-base$pj <- 0
-base$pj[base$job == "linger"|base$job == "tanneur"|base$job == "ouvrier papetier"] <- 1
-summary(lm(age~pollution*linger*cult, base))
-
-sort(unique(base$job))
- 
-##################################################
-
-#To fix the problem of ages:
-base$age<-round(base$age,0)
-
 
 
 ##############################Data description figures###########################
@@ -148,17 +134,6 @@ ggplot(base, aes(x=town, y=age))+
   ggtitle("Across towns death age distribution by quartile")
 
 
-
-#####Panel eyburie vs other
-histo2 <-base %>%
-  group_by(annee, town) %>%
-  summarise(age = mean(age))
-histo_3<-histo2 %>% filter(town=="uzerche"| town=="eyburie"|town=="espartignac")
-histo_3$annee <- as.Date(histo_3$annee, format='%Y')
-ggplot(histo_3, aes(x=annee, y=age, colour=town))+
-  geom_point()+
-  geom_smooth() +
-  ggtitle ("Failed attempt to investigate the specificity of Eyburie's demographic features")
 
 ###number of death by town
 ndeath<-data.frame(sort(table(base$town), decreasing = TRUE))

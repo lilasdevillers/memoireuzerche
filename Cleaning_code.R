@@ -40,10 +40,10 @@ for (i in (1:nrow(base)) ){
 ###whitespace####
 i<-1
 for(i in (1:nrow(base)) ){
-  if(base[i,3]==" cultivateur"){base[i,5] <- "cultivateur"}
+  if(base[i,3]==" cultivateur"){base[i,3] <- "cultivateur"}
 }
 
-sort(unique(base$place))
+sort(unique(base$job))
 #Doesn't work
 
 ###
@@ -67,3 +67,9 @@ base$town[base$place=="saint-ybard"] <- c("saint-ybard")
 base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
 base$town[base$place=="uzerche"] <- c("uzerche")
 base$town[base$place=="vigeois"] <- c("vigeois")
+
+#####delete data before 1883:
+base<-slice(base, -which(base$year<1883))
+
+table(base$place)
+
