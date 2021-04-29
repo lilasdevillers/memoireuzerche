@@ -19,7 +19,7 @@ load("uzercheultime.RData")
 
 ###Putting in form :
 
-base <- read.csv("uzerchebase.csv", sep=";")
+base <- read.csv("uzerche_deces_1883_1906.csv", sep=";")
 base <-base[,c(1:6)]
 colnames(base) <- c("name","gender","job","age","place","date")
 names(base) <- tolower(names(base))
@@ -234,12 +234,16 @@ prop_metier_ville <- function(x,y){
   100*sum(base$job==x&base$place==y)/sum(base$place==y)
 }
 
-###Population exposed to pollution --> non-cumulative effect
+###Population exposed to pollution
 base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 
+<<<<<<< HEAD
 ### Population exposed to pollution --> cumulative effect
 ##opening date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
+=======
+#which individuals are exposed to pollution between 1883 and 1906 ?
+>>>>>>> 9c21fb836e605a2be5028e169a17f23b0d711af6
 base$tan1 <- base$pollution
 base$tan2 <- 0
 base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
@@ -263,7 +267,7 @@ sort(unique(base$town))
 
 ###Regressions :
 
-##Regression 1 : date of death
+##Regression 1 : date of death (non cumulative pollution)
 
 #Linear regression + graphic
 lm.base <-lm(age~pollution,base)
@@ -275,16 +279,9 @@ ggplot(data = base, aes(x = pollution, y = age)) +
   ggtitle("Regression of death age on pollution from 1883 to 1906")
 xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
 
-#Regression 2 : date of death cumulative effect
-
+##Regression 2 : cumulative pollution
 lm.cum <-lm(age~tan1+tan2+paper,base)
 summary.lm(lm.cum)
-ggplot(data = base, aes(x = tan1+tan2+paper, y = age)) +
-  geom_point() +
-  stat_smooth(method = "lm", level = 0.95) +
-  labs(y="Death age", x="Exposure to cumulative pollution (1=exposed, 0=not exposed)") +
-  ggtitle("Regression of death age on cumulative pollution from 1883 to 1906")
-xtable(x = summary.lm(lm.cum), caption = "Regression of death age on cumulative pollution")
 
 ##Regression 3 : date of death for kids (<= 1 years old)
 kids <- filter(base, base$age<=1)
