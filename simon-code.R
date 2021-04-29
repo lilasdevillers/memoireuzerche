@@ -4,7 +4,8 @@ library(ggplot2)
 library(lubridate)
 library(tidyr)
 library(magrittr)
-####densities
+library(xtable)
+inta####densities
 library(tidyverse)
 library(hrbrthemes)
 library(viridis)
@@ -52,8 +53,10 @@ base$annee <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
 summary(lm(age~pollution+month,base))
-summary(lm(age~pollution*month,base))
+lm.season<-lm(age~pollution*month,base)
+xtable(x= summary.lm(lm.season), caption="Seasonality in the death age and between areas")
 
+summary.lm(lm.season)
 summary(lm(age~pollution,base))
 
 #interpretation:
@@ -69,15 +72,37 @@ summary(lm(age~pollution,base))
 
 
 
-###############################################
+#################gauthier dernière réunion##############################
+#année de naissance
+base$adn<-as.numeric(base$year)-base$age
+#durée d'exposition à la tan2 1896
+base$expos<-as.numeric(base$year)-1896
+base$expos1<-0
+base$expos1[base$expos>0]<-base$expos[base$expos>0]
+summary(lm(age~expos1+I(expos1^2),base))
 
-##############diff-in-diff post#############
-base$post<-0
-base$post[base$year>1893]<-1
+##############diff-in-diff#############
+base$post1893<-0
+base$post1893[base$year>=1893]<-1
 
-did<-lm(age~pollution*post,base)
+did<-lm(age~pollution*post1893,base)
 summary(did)
+
+
+#############Diff-in-Diff####CT assumption doesn't hold
+base$post1896<-0
+base$post1896[base$year>=1896]<- 1
+
+did2<-lm(age~pollution*post1896,base)
+summary.lm(did2)
+
 ###########################################
+
+#####comparison by cuting the sample#####
+
+
+
+
 
 ######illustration with a figure#######create two groups
 
@@ -98,34 +123,39 @@ ggplot(ctrend, aes(x = year, y = age, colour= group)) +
 
 
 ########Try to find a thiner control group ############
-ctrend_2 <- aggregate(age~year*town,base,mean)
-ctrend_2$group[ctrend_2$town=="salon-la-tour"] <- "CG"
-ctrend_2$group[ctrend_2$town=="uzerche"] <- "TG"
-ctrend_2<-filter(ctrend_2, ctrend_2$group=="TG"|ctrend_2$group=="CG" )
-ctrend_2$year <- as.Date(ctrend_2$year, format='%Y') 
-ggplot(ctrend_2, aes(x = year, y = age, colour= group)) +
-  geom_point() + 
-  geom_vline(xintercept=ctrend_2$year[11], linetype="dashed", color="blue")+
-  geom_smooth(method=lm, se=FALSE)+
-  ggtitle("Common time trend")+
-  labs(y="Average death age", x="Years")+
-  theme_update(plot.title=element_text(hjust=0.5))
 
 ######two treaments over time which we assume to be of the "same kind"
 
-names(base)[names(base) == "polluted"] <- "TG"
+names(base)[names(base) == "pollution"] <- "T"
 
 #people exposed to the pollution of the paper mill only
-base$post_paper<-0
-base$post_paper[base$year>=1893]<-1
-base$post_paper[base$year>=1896]<-0
+base$paper<-0
+base$paper[base$year>=1893]<-1
+base$paper[base$year>=1896]<-0
 #people who were exposed in their lifetime to both pollutions
-base$post_papertan<-0
-base$post_papertan[base$year>=1896]<-1
+base$papertan<-0
+base$papertan[base$year>=1896]<-1
 
-cum_did<-lm(age~TG*(post_paper + post_papertan), base)
+cum_did<-lm(age~T*(paper + papertan), base)
 
 summary.lm(cum_did)
+
+
+
+#################Two diff-in-diff#######################
+base$post<-0
+base$post[base$year>1893]<-1
+
+did1<-lm(age~pollution*post,base)
+summary(did1)
+
+base$post<-0
+base$post[base$year>1896]<-1
+
+did2<-lm(age~pollution*post,base)
+summary(did2)
+  
+
 ##############################Data description figures###########################
 #default theme
 #centre title:  
@@ -136,11 +166,22 @@ theme_update(plot.title=element_text(hjust=0.5))
 #####Time trend: time series first insight
 t_trend <- aggregate(age~year,base,mean)
 t_trend$year <- as.Date(t_trend$year, format='%Y') 
+t_trend$nbr<-table(base$year)
 ggplot(t_trend, aes(x = year, y = age)) +
   geom_point() +
   geom_smooth(method=lm, se=FALSE)+
-labs(x='years', y='average death age') + ggtitle ("Average death age over time")
+  geom_line(aes(y=age), color ="black")+
+labs(x='Years', y='Average death age') + ggtitle ("Average death age over time")
 
+ggplot(t_trend, aes(x=year, y=nbr))+
+  geom_point()+
+  geom_line(aes(y=nbr))+
+  geom_smooth(se=FALSE)
+
+len####First differences to stationarity
+t_trend$fd<-diff(t_trend$age, lag = 1, differences = 1)
+ 
+t_trend$nbr<-table(base$year)
 #########Population differences: cross-sectional data first insights##########
 ggplot(base, aes(x=town, y=age))+
  geom_boxplot()+
