@@ -239,7 +239,7 @@ base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 
 ### Population exposed to pollution --> cumulative effect
-##openning date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
+##opening date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
 base$tan1 <- base$pollution
 base$tan2 <- 0
 base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
