@@ -5,6 +5,7 @@ library(lubridate)
 library(tidyr)
 library(magrittr)
 library(xtable)
+library(stargazer)
 inta####densities
 library(tidyverse)
 library(hrbrthemes)
@@ -88,15 +89,42 @@ base$post1893[base$year>=1893]<-1
 did<-lm(age~pollution*post1893,base)
 summary(did)
 
+stargazer(did, type="latex")
+
+
 
 #############Diff-in-Diff####CT assumption doesn't hold
 base$post1896<-0
 base$post1896[base$year>=1896]<- 1
-
 did2<-lm(age~pollution*post1896,base)
 summary.lm(did2)
 
-###########################################
+stargazer(did2, type="latex")
+
+#############Diff-in-Diff excluding the period after 1896##############################
+base$post1893<-0
+base$post1893[base$year>=1893]<-1
+control.base1<-subset(base,base$year<1896)
+did3<-lm(age~pollution*post1893,control.base1)
+summary.lm(did3)
+
+stargazer(did3, type="latex")
+
+##########excluding the periode 1893-1896######## FINAL ONE
+base$post1896<-0
+base$post1896[base$year>=1896]<- 1
+control.base2<-subset(base,base$year>=1896|base$year<1893)
+did4<-lm(age~pollution*post1896,control.base2)
+summary.lm(did4)
+
+stargazer(did4, type="latex")
+
+######Diff-in-Diff########
+base$post1896<-0
+base$post1896[base$year>=1897]<- 1
+did5<-lm(age~pollution*post1896,base)
+summary.lm(did5)
+
 
 #####comparison by cuting the sample#####
 
