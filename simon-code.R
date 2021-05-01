@@ -144,8 +144,8 @@ labs(x='years', y='average death age') + ggtitle ("Average death age over time")
 #########Population differences: cross-sectional data first insights##########
 ggplot(base, aes(x=town, y=age))+
  geom_boxplot()+
-  ggtitle("Across towns death age distribution by quartile")
-
+  ggtitle("Across towns death age distribution by quartile")+
+labs(x='Towns', y='Death age')
 
 
 ###number of death by town
@@ -162,7 +162,8 @@ base %>%
   ggplot(aes(x=age))+
   geom_density(fill="#69b3a2", color="#e9ecef",alpha=0.9, adjust = 0.5)+
   facet_wrap(~town)+
-ggtitle("Across town death age distribution")
+ggtitle("Across town death age distribution")+
+labs(x='Death age', y='Density')
 
 base %>% 
   ggplot( aes(y=town, x=age, fill=town))+
