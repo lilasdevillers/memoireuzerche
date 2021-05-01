@@ -296,7 +296,12 @@ names(cultivateur) <- c("Towns","% of cultivator")
 base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 
+<<<<<<< HEAD
+### Population exposed to pollution --> cumulative effect
+##opening date: tannery 1 : 1872, tannery 2 : 1896, paper mill : 1893
+=======
 #which individuals are exposed to pollution between 1883 and 1906 ?
+>>>>>>> 9c21fb836e605a2be5028e169a17f23b0d711af6
 base$tan1 <- base$pollution
 base$tan2 <- 0
 base$tan2[base$place=="uzerche"&base$year>=1896] <- 1
