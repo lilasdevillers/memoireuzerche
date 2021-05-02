@@ -61,6 +61,11 @@ for (i in (1:nrow(base)) ){
   }
 }
 
+i <- 1
+for (i in (1:nrow(base))){
+  if(base$place[i]=="vigeois"){base <- slice(base, -i)}
+}
+
 #Factors for characther vectors
 place_factor <- factor(x=base$place)
 job_factor <- factor(x=base$job)
@@ -253,6 +258,7 @@ legend(x=0.7057949,y=45.62726,title="Number of deads in 1894",legend=names(attr(
 #Map of cultivator %
 correze2$prop_cultivateur <- "NA"
 correze2$prop_cultivateur <- as.numeric(correze2$prop_cultivateur)
+base$place <- str_to_lower(base$place)
 base$place <- str_to_upper(base$place)
 v <- 1
 for(v in (1:length(VILLE))){
@@ -271,13 +277,13 @@ for(i in (1:nrow(base))){
   if(base$job[i]=="proprietaire cultivateur"){base$job[i]<-"cultivateur"}
 }
 
-colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="fixed", fixedBreaks=c(10,15,25,35,45,60)),plotclr)
+colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="fixed", fixedBreaks=c(10,15,25,35,45)),plotclr)
 plot(correze2,col=colcodecult)
-legend(x=1.906562,y=45.74311,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
+legend(x=1.906562,y=45.64311,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
        fill=attr(colcodecult, "palette"), cex=0.6, bty="n")
-points(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","SALON-LA-TOUR","UZERCHE"),]), pch=20, 
-       col=c("black","black","black"), cex=1)
-text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","SALON-LA-TOUR","UZERCHE"),]),c("VIGEOIS","SALON-LA-TOUR","UZERCHE"),cex=0.6, pos=4)
+points(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE"),]), pch=20, 
+       col=c("black","black"), cex=1)
+text(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE"),]),c("SALON-LA-TOUR","UZERCHE"),cex=0.6, pos=4)
 
 prop_metier_ville <- function(x,y){
   100*sum(base$job==x&base$place==y)/sum(base$place==y)
@@ -305,10 +311,10 @@ base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 base$tan1 <- base$pollution
 base$tan2 <- 0
 base$tan2[base$place=="uzerche"&base$year>=1896] <- 1
-base$tan2[base$place=="vigeois"&base$year>=1896] <- 1
+
 base$paper <- 0
 base$paper[base$place=="uzerche"&base$year>=1893] <- 1
-base$paper[base$place=="vigeois"&base$year>=1893] <- 1
+
 
 #Regrouping places in categories
 base$town <- c("other")
@@ -339,17 +345,47 @@ ggplot(data = base, aes(x = pollution, y = age)) +
   labs(y="Death age", x="Exposure to pollution (1=exposed, 0=not exposed)") +
   ggtitle("Regression of death age on pollution from 1883 to 1906")
 xtable(x = summary.lm(lm.base), caption = "Regression of death age on non-cumulative pollution")
+stargazer(lm.base,type="latex")
 
 ##Regression 1 bis : simple but with all the factories
 base$birth <- as.numeric(base$year) - base$age
 
 #tannery 2 --> 1896
-lm.tan2 <-lm(age~tan2,base)
-summary(lm(age~tan2,base))
-#paper factory
-lm.paper <- lm(age~paper,base)
-summary(lm.paper)
+lm.tan2 <-lm(age~tan2,base[base$place=="uzerche",])
+summary(lm(age~tan2,base[base$place=="uzerche",]))
+stargazer(lm.tan2,type="latex")
 
+#let's change the date of the exposure :
+tan2table <- data.frame(matrix(ncol = 11,nrow = 1))
+names(tan2table) <- date
+date <- names(tan2table)
+d <- 1
+for(d in (1:length(date))){
+  base$tan2 <- 0
+  base$tan2[base$place=="uzerche"&base$year>=date[d]] <- 1
+  lm.tan2 <-lm(age~tan2,base[base$place=="uzerche",])
+  summary(lm(age~tan2,base[base$place=="uzerche",]))
+  stargazer(lm.tan2,type="latex")
+}
+  
+
+#durée d'exposition à la tan2 1896
+base$expostan2<-as.numeric(base$year)-1896
+for(i in (1:nrow(base))){
+base$expostan2[base$expostan2<0]<- 0
+}
+summary(lm(age~expostan2+I(expostan2^2),base[base$place=="uzerche"|base$place=="vigeois",]))
+
+#paper factory
+lm.paper <- lm(age~paper,base[base$place=="uzerche",])
+summary(lm.paper)
+stargazer(lm.paper,type="latex")
+base$expospaper<-as.numeric(base$year)-1893
+for(i in (1:nrow(base))){
+  base$expospaper[base$expospaper<0]<- 0
+}
+summary(lm(age~expospaper+I(expospaper^2),base))
+stargazer(lm(age~expospaper+I(expospaper^2),base[base$place=="uzerche"|base$place=="vigeois",]),type="latex")
 ##Regression 2 : cumulative pollution
 lm.cum <-lm(age~tan1+tan2+paper,base)
 summary.lm(lm.cum)

@@ -3,17 +3,35 @@
 #all of Correze
 library("rgdal")
 library("maptools");library("maps");library("rgeos")
+library("ggplot2")
 correze <- readOGR(dsn="19-correze", layer="19-")
 correze <- spTransform(correze, CRS("+proj=longlat"))
 correze@data$id <- rownames(correze@data)
 #which area is interesting for us ?
-plot(correze, col = "lightgrey")
+plot(correze, col = "lightgrey", main="Map of the communes of Corrèze")
 canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$CODE_CANT==24|correze@data$CODE_CANT==22
 plot(correze[canton, ], col = "turquoise", add = TRUE)
+plot(correze[correze@data$CODE_CANT==28,],col = "#8DD3C7", add=TRUE)
+legend(x=2.458050,y=45.30846,legend=c("Cantons of Uzerche"),
+       fill="#8DD3C7", cex=1, bty="n")
+plot(correze[correze@data$CODE_CANT==29,],col = "#FFFFB3", add=TRUE)
+legend(x=2.458050,y=45.21197,legend=c("Cantons of Vigeois"),
+       fill="#FFFFB3", cex=1, bty="n")
+plot(correze[correze@data$CODE_CANT==24,],col = "#BEBADA", add=TRUE)
+legend(x=2.458050,y=45.10025,legend=c("Cantons of Treignac"),
+       fill="#BEBADA", cex=1, bty="n")
+#29 --> vigeois, 24 --> Treignac, 28 --> Uzerche
+
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR" ,"UZERCHE","VIGEOIS", "TREIGNAC"),]), 
        pch=20, col="red", cex=1)
+
+sum(base$town[]!="other");nrow(base)
+sum(base$town[]=="uzerche")
+dead_town <- data.frame(matrix(nrow = 0,ncol=2))
+
+
 #focusing on this area and adding Vezere
-plot(correze[canton,],main="Map of Correze")
+plot(correze[canton,],main="Map of the canton of Uzerche, Vigeois and Treignac")
 points(coordinates(correze[correze@data$NOM_COMM %in% c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR"),]), pch=20, 
        col=c("black","black","black","black","black","black","black"), cex=1)
 points(coordinates(correze[correze@data$NOM_COMM %in% c("TREIGNAC" ,"UZERCHE","VIGEOIS"),]), pch=20, 
@@ -380,3 +398,5 @@ colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,st
 plot(correze2,col=colcodecult)
 legend(x=0.7057949,y=45.62726,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
        fill=attr(colcodecult, "palette"), cex=0.6, bty="n")
+
+
