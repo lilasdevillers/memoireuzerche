@@ -56,7 +56,7 @@ base$month <- substr(x = base$date,6,7)
 summary(lm(age~pollution+month,base))
 lm.season<-lm(age~pollution*month,base)
 xtable(x= summary.lm(lm.season), caption="Seasonality in the death age and between areas")
-
+stargazer(lm.season)
 summary.lm(lm.season)
 summary(lm(age~pollution,base))
 
@@ -65,7 +65,14 @@ summary(lm(age~pollution,base))
 #mean(df$age)
 #[1] 31.85155
 
-##################################################
+#############Infant seasonality#######################
+infant<-subset(base, base$age<=1)
+summary.lm(lm(age~pollution*month,infant))
+
+non.infant<-subset(base, base$age>1)
+summary.lm(lm(age~pollution*month,non.infant))
+non.infant.elder<-subset(non.infant, non.infant$age<=64)
+summary.lm(lm(age~pollution*month,non.infant.elder))
 
 ###############filter seasonality#################
 
@@ -110,6 +117,7 @@ summary.lm(did3)
 
 stargazer(did3, type="latex")
 
+base<-subset(base, base$town!="vigeois")
 ##########excluding the periode 1893-1896######## FINAL ONE
 base$post1896<-0
 base$post1896[base$year>=1896]<- 1
@@ -119,14 +127,16 @@ summary.lm(did4)
 
 stargazer(did4, type="latex")
 
-######Diff-in-Diff########
-base$post1896<-0
-base$post1896[base$year>=1897]<- 1
-did5<-lm(age~pollution*post1896,base)
+
+######Diff-in-Diff: Placebo test########
+base$postplac<-0
+base$postplac[base$year>=1888]<- 1
+placebo<-subset(base, base$year<1893)
+did5<-lm(age~pollution*postplac,placebo)
 summary.lm(did5)
 
 
-#####comparison by cuting the sample#####
+#####comparison by cutting the sample#####
 
 
 
