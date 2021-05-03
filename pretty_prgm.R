@@ -8,12 +8,13 @@ library(xtable);library(dplyr);library(stringr);library(ggplot2);library(lubrida
 #Useful commands
 base <- read.csv("uzercheultime.csv", sep=";")
 save(base,file = "uzerche_test.RData")
-load("uzerche_test.RData")
+load("uzerche_ultime.RData")
 save(river,file="river_vezere.RData")
 load("river_vezere.RData")
 save(correze2,file="map_correze_canton_data.RData")
 load("map_correze_canton_data.RData")
 load("uzercheultime.RData")
+save(base,file="uzerche_ultime.RData")
 
 ###
 
@@ -29,8 +30,10 @@ base$gender <- as.numeric(base$gender)
 base$age <- as.numeric(base$age)
 base$date <- paste(substr(base$date, 7,11), substr(base$date, 4,5),  substr(base$date, 1,2), sep="-")
 base$date <- as.Date(base$date, format="%Y-%m-%d")
-base$annee <- substr(x = base$date,1,4)
+base$year <- substr(x = base$date,1,4)
+base$year <- as.numeric(base$year)
 base$month <- substr(x = base$date,6,7)
+base$month <- as.numeric(base$month)
 summary(base)
 
 #standardizing city's names
@@ -58,6 +61,11 @@ for (i in (1:nrow(base)) ){
   }
 }
 
+i <- 1
+for (i in (1:nrow(base))){
+  if(base$place[i]=="vigeois"){base <- slice(base, -i)}
+}
+
 #Factors for characther vectors
 place_factor <- factor(x=base$place)
 job_factor <- factor(x=base$job)
@@ -76,20 +84,55 @@ canton <- correze@data$CODE_CANT==28|correze@data$CODE_CANT==29|correze@data$COD
 plot(correze[canton, ], col = "turquoise", add = TRUE)
 legend(x=1.039107,y=45.37074,legend=c("Cantons of Uzerche, Vigeois et Seilhac"),
        fill="turquoise", cex=1.4, bty="n")
+plot(correze[correze@data$CODE_CANT==28,],col = "#8DD3C7", add=TRUE)
+legend(x=2.458050,y=45.30846,legend=c("Cantons of Uzerche"),
+       fill="#8DD3C7", cex=1, bty="n")
+plot(correze[correze@data$CODE_CANT==29,],col = "#FFFFB3", add=TRUE)
+legend(x=2.458050,y=45.21197,legend=c("Cantons of Vigeois"),
+       fill="#FFFFB3", cex=1, bty="n")
+plot(correze[correze@data$CODE_CANT==24,],col = "#BEBADA", add=TRUE)
+legend(x=2.458050,y=45.10025,legend=c("Cantons of Treignac"),
+       fill="#BEBADA", cex=1, bty="n")
+#29 --> vigeois, 24 --> Treignac, 28 --> Uzerche
 points(coordinates(correze[correze@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]), 
        pch=20, col="red", cex=1)
+#frame : people died in this area
+dead_town <- data.frame(matrix(nrow = 0,ncol=2))
+town <- c(levels(as.factor(base$town)),"treignac")
+
+i<- 1
+for(i in (1:length(town))){
+  dead_town[i,1] <- town[i]
+  dead_town[i,2] <- sum(base$town[]==town[i])
+}
+dead_town <- slice(dead_town, -6)
+dead_town[11,1] <- c("Main towns")
+dead_town[11,2] <- sum(base$town[]!="other")
+dead_town[12,1] <- c("Other")
+dead_town[12,2] <- sum(base$town[]=="other")
+dead_town[13,1] <- c("Total")
+dead_town[13,2] <- nrow(base)
+names(dead_town) <- c("Towns","Number of deaths")
+View(dead_town)
+xtable(x=dead_town,caption = "Number of deaths by location")
+
+
 
 #focusing on this area and adding Vezere
-plot(correze[canton,],main="Map of Correze")
+plot(correze[canton,],main="Map of the canton of Uzerche, Vigeois and Treignac")
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]), pch=20, 
        col=c("black","black","black","black","black","black","black","black","black","black"), cex=1)
-text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]),c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),cex=0.45, pos=4)
+text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),]),c("VIGEOIS","MASSERET","MEILHARDS","SALON-LA-TOUR","CONDAT-SUR-GANAVEIX","ESPARTIGNAC","TREIGNAC","UZERCHE","SAINT-YBARD","EYBURIE"),cex=0.5, pos=4)
 points(coordinates(correze2[correze2@data$NOM_COMM %in% c("TREIGNAC" ,"UZERCHE","VIGEOIS"),]), pch=20, 
        col=c("red","red","red"), cex=1)
-text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","TREIGNAC","UZERCHE"),]),c("VIGEOIS","TREIGNAC","UZERCHE"),cex=0.45, pos=4,col="red")
+text(coordinates(correze2[correze2@data$NOM_COMM %in% c("VIGEOIS","TREIGNAC","UZERCHE"),]),c("VIGEOIS","TREIGNAC","UZERCHE"),cex=0.5, pos=4,col="red")
 library(raster)
 river <- locator(n=15) # hand drawing
 lines(river,col="lightblue1",lwd=2)
+legend(x=1.862834,y=45.45924,legend=c("The Vézère"),
+       col ="lightblue1", lty=1:2, cex=1, bty="n")
+legend(x=1.862834,y=45.40604,pch=20,legend=c("Towns not on the Vézère","Towns on the Vézère"),
+       col =c("black","red"), cex=1, bty="n")
 
 #Adding data on the map
 base$place <- str_to_upper(base$place)
@@ -215,24 +258,45 @@ legend(x=0.7057949,y=45.62726,title="Number of deads in 1894",legend=names(attr(
 #Map of cultivator %
 correze2$prop_cultivateur <- "NA"
 correze2$prop_cultivateur <- as.numeric(correze2$prop_cultivateur)
+base$place <- str_to_lower(base$place)
 base$place <- str_to_upper(base$place)
 v <- 1
 for(v in (1:length(VILLE))){
   correze2@data$prop_cultivateur[correze2@data$NOM_COMM==VILLE[v]] <- prop_metier_ville("cultivateur",VILLE[v])
 }
 
-nclr <- 4
+nclr <- 5
 plotclr <- brewer.pal(nclr,"RdPu")
 plotclr <- plotclr[nclr:1] # reorder colors
 
-colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="pretty"),plotclr)
+i <- 1
+for(i in (1:nrow(base))){
+  if(base$job[i]=="agriculteur"){base$job[i]<-"cultivateur"}
+  if(base$job[i]=="cultivateur charpentier"){base$job[i]<-"cultivateur"}
+  if(base$job[i]=="cultivateur macon"){base$job[i]<-"cultivateur"}
+  if(base$job[i]=="proprietaire cultivateur"){base$job[i]<-"cultivateur"}
+}
+
+colcodecult <- findColours(classIntervals(correze2@data$prop_cultivateur,nclr,style="fixed", fixedBreaks=c(10,15,25,35,45)),plotclr)
 plot(correze2,col=colcodecult)
-legend(x=0.7057949,y=45.62726,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
+legend(x=1.906562,y=45.64311,title="% of cultivateurs",legend=names(attr(colcodecult,"table")),
        fill=attr(colcodecult, "palette"), cex=0.6, bty="n")
+points(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE"),]), pch=20, 
+       col=c("black","black"), cex=1)
+text(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE"),]),c("SALON-LA-TOUR","UZERCHE"),cex=0.6, pos=4)
 
 prop_metier_ville <- function(x,y){
   100*sum(base$job==x&base$place==y)/sum(base$place==y)
 }
+cultivateur <- data.frame(matrix(nrow = length(VILLE),ncol=2))
+cultivateur$X1 <- VILLE
+i <- 1
+for(i in (1:length(VILLE))){
+  if(cultivateur$X1[i]==VILLE[i]){cultivateur$X2[i]<-correze2@data$prop_cultivateur[correze2@data$NOM_COMM==VILLE[i]]}
+}
+View(cultivateur)
+cultivateur <- slice(cultivateur,-9)
+names(cultivateur) <- c("Towns","% of cultivator")
 
 ###Population exposed to pollution
 base$pollution <- 0
@@ -246,11 +310,11 @@ base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 >>>>>>> 9c21fb836e605a2be5028e169a17f23b0d711af6
 base$tan1 <- base$pollution
 base$tan2 <- 0
-base$tan2[base$place=="uzerche"&base$year<=1896] <- 1
-base$tan2[base$place=="vigeois"&base$year<=1896] <- 1
+base$tan2[base$place=="uzerche"&base$year>=1896] <- 1
+
 base$paper <- 0
-base$paper[base$place=="uzerche"&base$year<=1893] <- 1
-base$paper[base$place=="vigeois"&base$year<=1893] <- 1
+base$paper[base$place=="uzerche"&base$year>=1893] <- 1
+
 
 #Regrouping places in categories
 base$town <- c("other")
@@ -267,6 +331,9 @@ sort(unique(base$town))
 
 ###Regressions :
 
+theme_update(plot.title=element_text(hjust=0.5))
+#centrer les graphs
+
 ##Regression 1 : date of death (non cumulative pollution)
 
 #Linear regression + graphic
@@ -277,8 +344,48 @@ ggplot(data = base, aes(x = pollution, y = age)) +
   stat_smooth(method = "lm", level = 0.95) +
   labs(y="Death age", x="Exposure to pollution (1=exposed, 0=not exposed)") +
   ggtitle("Regression of death age on pollution from 1883 to 1906")
-xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
+xtable(x = summary.lm(lm.base), caption = "Regression of death age on non-cumulative pollution")
+stargazer(lm.base,type="latex")
 
+##Regression 1 bis : simple but with all the factories
+base$birth <- as.numeric(base$year) - base$age
+
+#tannery 2 --> 1896
+lm.tan2 <-lm(age~tan2,base[base$place=="uzerche",])
+summary(lm(age~tan2,base[base$place=="uzerche",]))
+stargazer(lm.tan2,type="latex")
+
+#let's change the date of the exposure :
+tan2table <- data.frame(matrix(ncol = 11,nrow = 1))
+names(tan2table) <- date
+date <- names(tan2table)
+d <- 1
+for(d in (1:length(date))){
+  base$tan2 <- 0
+  base$tan2[base$place=="uzerche"&base$year>=date[d]] <- 1
+  lm.tan2 <-lm(age~tan2,base[base$place=="uzerche",])
+  summary(lm(age~tan2,base[base$place=="uzerche",]))
+  stargazer(lm.tan2,type="latex")
+}
+  
+
+#durée d'exposition à la tan2 1896
+base$expostan2<-as.numeric(base$year)-1896
+for(i in (1:nrow(base))){
+base$expostan2[base$expostan2<0]<- 0
+}
+summary(lm(age~expostan2+I(expostan2^2),base[base$place=="uzerche"|base$place=="vigeois",]))
+
+#paper factory
+lm.paper <- lm(age~paper,base[base$place=="uzerche",])
+summary(lm.paper)
+stargazer(lm.paper,type="latex")
+base$expospaper<-as.numeric(base$year)-1893
+for(i in (1:nrow(base))){
+  base$expospaper[base$expospaper<0]<- 0
+}
+summary(lm(age~expospaper+I(expospaper^2),base))
+stargazer(lm(age~expospaper+I(expospaper^2),base[base$place=="uzerche"|base$place=="vigeois",]),type="latex")
 ##Regression 2 : cumulative pollution
 lm.cum <-lm(age~tan1+tan2+paper,base)
 summary.lm(lm.cum)
@@ -371,3 +478,86 @@ tbm_graph_tot <- data.frame(matrix(nrow = 24,ncol=2))
 tbm_graph_tot$X1 <-c(tbm_ville$tbm_1906,tbm_ville$tbm_1901,tbm_ville$tbm_1896)
 tbm_graph_tot$X2 <- c(tbm_ville$pollution,tbm_ville$pollution,tbm_ville$pollution)
 colnames(tbm_graph_tot) <- c("tbm","pollution")
+
+#truc chelou que gauthier a dit avec les villes à coté
+##comparaison 1896 salon-la-tour
+base$slt1896 <- 0
+base$slt1896[base$place=="salon-la-tour"&base$year>=1896] <- 1
+lm(age~slt1896,base[base$place=="salon-la-tour",])
+summary(lm(age~slt1896,base[base$place=="salon-la-tour",]))
+
+##condat
+base$con1896 <- 0
+base$con1896[base$place=="condat-sur-ganaveix"&base$year>=1896] <- 1
+lm(age~con1896,base[base$place=="condat-sur-ganaveix",])
+summary(lm(age~con1896,base[base$place=="condat-sur-ganaveix",]))
+#**
+##espartignac
+base$esp1896 <- 0
+base$esp1896[base$place=="espartignac"&base$year>=1896] <- 1
+lm(age~esp1896,base[base$place=="espartignac",])
+summary(lm(age~esp1896,base[base$place=="espartignac",]))
+#eyburie
+base$eyb1896 <- 0
+base$eyb1896[base$place=="eyburie"&base$year>=1896] <- 1
+lm(age~eyb1896,base[base$place=="eyburie",])
+summary(lm(age~eyb1896,base[base$place=="eyburie",]))
+
+#masseret
+base$mas1896 <- 0
+base$mas1896[base$place=="masseret"&base$year>=1896] <- 1
+lm(age~mas1896,base[base$place=="masseret",])
+summary(lm(age~mas1896,base[base$place=="masseret",]))
+
+#meilhards
+base$mei1896 <- 0
+base$mei1896[base$place=="meilhards"&base$year>=1896] <- 1
+lm(age~mei1896,base[base$place=="meilhards",])
+summary(lm(age~mei1896,base[base$place=="meilhards",]))
+#saint-ybard
+base$sty1896 <- 0
+base$sty1896[base$place=="saint-ybard"&base$year>=1896] <- 1
+lm(age~sty1896,base[base$place=="saint-ybard",])
+summary(lm(age~sty1896,base[base$place=="saint-ybard",]))
+#*
+
+##comparaison 1893 salon-la-tour
+base$slt1893 <- 0
+base$slt1893[base$place=="salon-la-tour"&base$year>=1893] <- 1
+lm(age~slt1893,base[base$place=="salon-la-tour",])
+summary(lm(age~slt1893,base[base$place=="salon-la-tour",]))
+
+##condat
+base$con1893 <- 0
+base$con1893[base$place=="condat-sur-ganaveix"&base$year>=1893] <- 1
+lm(age~con1893,base[base$place=="condat-sur(ganaveix",])
+summary(lm(age~con1893,base[base$place=="condat-sur-ganaveix",]))
+
+##espartignac
+base$esp1893 <- 0
+base$esp1893[base$place=="espartignac"&base$year>=1893] <- 1
+lm(age~esp1893,base[base$place=="espartignac",])
+summary(lm(age~esp1893,base[base$place=="espartignac",]))
+#eyburie
+base$eyb1893 <- 0
+base$eyb1893[base$place=="eyburie"&base$year>=1893] <- 1
+lm(age~eyb1893,base[base$place=="eyburie",])
+summary(lm(age~eyb1893,base[base$place=="eyburie",]))
+# significativé 10%
+#masseret
+base$mas1893 <- 0
+base$mas1893[base$place=="masseret"&base$year>=1893] <- 1
+lm(age~mas1893,base[base$place=="masseret",])
+summary(lm(age~mas1893,base[base$place=="masseret",]))
+# significativité 10%
+#meilhards
+base$mei1893 <- 0
+base$mei1893[base$place=="meilhards"&base$year>=1893] <- 1
+lm(age~mei1893,base[base$place=="meilhards",])
+summary(lm(age~mei1893,base[base$place=="meilhards",]))
+#saint-ybard
+base$sty1893 <- 0
+base$sty1893[base$place=="saint-ybard"&base$year>=1893] <- 1
+lm(age~sty1893,base[base$place=="saint-ybard",])
+summary(lm(age~sty1893,base[base$place=="saint-ybard",]))
+
