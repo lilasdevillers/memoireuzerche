@@ -186,6 +186,24 @@ text(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE
 
 ####################Descriptive stats#################"""
 #Table of the number of people recorded in each town
+dead_town <- data.frame(matrix(nrow = 0,ncol=2))
+town <- c(levels(as.factor(base$town)),"treignac")
+
+i<- 1
+for(i in (1:length(town))){
+  dead_town[i,1] <- town[i]
+  dead_town[i,2] <- sum(base$town[]==town[i])
+}
+dead_town <- slice(dead_town, -6)
+dead_town[11,1] <- c("Main towns")
+dead_town[11,2] <- sum(base$town[]!="other")
+dead_town[12,1] <- c("Other")
+dead_town[12,2] <- sum(base$town[]=="other")
+dead_town[13,1] <- c("Total")
+dead_town[13,2] <- nrow(base)
+names(dead_town) <- c("Towns","Number of deaths")
+View(dead_town)
+xtable(x=dead_town,caption = "Number of deaths by location")
 
 #Table of the pourcentage of cultivators
 cultivateur<- data.frame(matrix(nrow = length(VILLE),ncol=2))
@@ -217,6 +235,10 @@ ggplot(base, aes(x=town, y=age))+
   labs(x='Towns', y='Death age')
 
 #Lifetime trend
+
+#Average death regarding towns
+aggregate(age~town,base,mean)
+xtable(aggregate(age~town,base,mean))
 
 ##################Regressions#########################
 # Regression 1 : simple linear model, regressin of death age on exposure to pollution
