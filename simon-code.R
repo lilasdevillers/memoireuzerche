@@ -26,8 +26,8 @@ for (town in 1:nrow(base)){
   if (base$place[town]=="condat"){base$place[town]<-"condat-sur-ganaveix"}
 }
 
-###delete the soldier
-base<-slice(base, -which(base$year==1871))
+###delete the soldier and other 
+base<-subset(base, base$year>=1883)
 
 
 #######Create variable for the places of interest
@@ -49,17 +49,19 @@ sort(unique(base$town))
 
 ######################seasonality###################
 base$pollution <- 0
-base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
+base$pollution[base$place=="uzerche"] <- 1
 base$annee <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
-summary(lm(age~pollution+month,base))
-lm.season<-lm(age~pollution*month,base)
+#tacking the error into account
+ourbase<-subset(base, base$year>1894)
+#
+lm.season<-lm(age~pollution*month,ourbase)
 xtable(x= summary.lm(lm.season), caption="Seasonality in the death age and between areas")
 stargazer(lm.season)
 summary.lm(lm.season)
-summary(lm(age~pollution,base))
 
+summary(lm(age~pollution,base))
 #interpretation:
 #  df<-base %>% filter(base$town!="uzerche"&base$month=="01")
 #mean(df$age)
@@ -74,11 +76,38 @@ summary.lm(lm(age~pollution*month,non.infant))
 non.infant.elder<-subset(non.infant, non.infant$age<=64)
 summary.lm(lm(age~pollution*month,non.infant.elder))
 
-###############filter seasonality#################
+###############death seasonality#################
+season<-table(base$pollution, base$month)
+season<-data.frame(season)
+colnames(season)<-c("TG", "month", "deaths")
+RowSums(season[,2:3])
+
+stargazer()
+table(base$pollution)
+for (i in (1:nrow(season))){
+  if (season[i,1]==0){season[i,3]<-100*season[i,3]/4838}
+  else{season[i,3]<-100*season[i,3]/2035}
+}
+season$deaths<-round(season$deaths)
+as.table(season$month, season$TG)
+xtable(season, summary=FALSE, rownames=FALSE)
 
 
+###error in data collection
+ourbase<-subset(base, base$year>1894)
+our<-table(ourbase$month)
+our<-as.data.frame(our)
+colnames(our)<-c("month","deaths")
 
+theirbase<-subset(base, base$year<1894)
+their<-table(theirbase$month)
+their<-as.data.frame(their)
+colnames(their)<-c("month","deaths")
 
+our$their<-their$deaths
+
+colnames(our)<-c("month", "1894-1906", "1883-1893")
+stargazer(our, summary=FALSE, rownames=FALSE)
 
 #################gauthier dernière réunion##############################
 #année de naissance
@@ -174,6 +203,8 @@ base$paper[base$year>=1896]<-0
 base$papertan<-0
 base$papertan[base$year>=1896]<-1
 
+
+
 cum_did<-lm(age~T*(paper + papertan), base)
 
 summary.lm(cum_did)
@@ -216,7 +247,7 @@ ggplot(t_trend, aes(x=year, y=nbr))+
   geom_line(aes(y=nbr))+
   geom_smooth(se=FALSE)
 
-len####First differences to stationarity
+####First differences to stationarity
 t_trend$fd<-diff(t_trend$age, lag = 1, differences = 1)
  
 t_trend$nbr<-table(base$year)
