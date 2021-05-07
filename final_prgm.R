@@ -64,11 +64,11 @@ for (i in (1:nrow(base)) ){
   }
 }
 
+#Deleting the soldier and other lately registered deaths 
+base<-subset(base, base$year>=1883)
+
 #Deleting Vigeois
-i <- 1
-for (i in (1:nrow(base))){
-  if(base$place[i]=="vigeois"){base <- slice(base, -i)}
-}
+base<-subset(base, base$place!="vigeois")
 
 #Creating categories for main towns
 base$town <- c("other")
@@ -184,10 +184,11 @@ points(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERC
        col=c("black","black"), cex=1)
 text(coordinates(correze2[correze2@data$NOM_COMM %in% c("SALON-LA-TOUR","UZERCHE"),]),c("SALON-LA-TOUR","UZERCHE"),cex=0.6, pos=4)
 
-####################Descriptive stats#################"""
+
+####################Descriptive stats####################
 #Table of the number of people recorded in each town
 
-#Table of the pourcentage of cultivators
+#Table of the percentage of cultivators
 cultivateur<- data.frame(matrix(nrow = length(VILLE),ncol=2))
 cultivateur$X1 <- VILLE
 i <- 1
@@ -200,7 +201,14 @@ View(cultivateur)
 cultivateur <- slice(cultivateur,-9) #Deleting Treignac, might be another row number
 names(cultivateur) <- c("Towns","% of cultivator")
 
-#Age deaths distributions by town
+#Population differences: cross-sectional data first insights
+#Age deaths distributions by towns
+#Box plots
+ggplot(base, aes(x=town, y=age))+
+  geom_boxplot()+
+  ggtitle("Across towns death age distribution by quartile")+
+  labs(x='Towns', y='Death age')
+
 #Densities
 base %>% 
   ggplot(aes(x=age))+
@@ -209,18 +217,21 @@ base %>%
   ggtitle("Across town death age distribution")+
   labs(x='Death age', y='Density')
 
-#Population differences: cross-sectional data first insights
-#Mustache boxes
-ggplot(base, aes(x=town, y=age))+
-  geom_boxplot()+
-  ggtitle("Across towns death age distribution by quartile")+
-  labs(x='Towns', y='Death age')
-
+#Time series feature
 #Lifetime trend
+t_trend <- aggregate(age~year,base,mean)
+t_trend$year <- as.Date(t_trend$year, format='%Y') 
+t_trend$nbr<-table(base$year)
+ggplot(t_trend, aes(x = year, y = age)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)+
+  labs(x='Years', y='Average death age') + ggtitle ("Average death age over time")
+
+
 
 ##################Regressions#########################
-# Regression 1 : simple linear model, regressin of death age on exposure to pollution
-#Which populatin is exposed to pollution ?
+# Regression 1 : simple linear model, regression of death age on exposure to pollution
+#Which population is exposed to pollution ?
 base$pollution <- 0
 base$pollution[base$place=="uzerche"] <- 1
 
