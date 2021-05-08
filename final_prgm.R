@@ -246,8 +246,7 @@ ggplot(t_trend, aes(x = year, y = age)) +
   labs(x='Years', y='Average death age') + ggtitle ("Average death age over time")
 
 
-
-#Average death regarding towns
+#Average death age in each town
 aggregate(age~town,base,mean)
 xtable(aggregate(age~town,base,mean))
 
@@ -259,16 +258,27 @@ base$pollution[base$place=="uzerche"] <- 1
 
 lm.base <-lm(age~pollution,base)
 summary.lm(lm.base)
-ggplot(data = base, aes(x = pollution, y = age)) +
-  geom_point() +
-  stat_smooth(method = "lm", level = 0.95) +
-  labs(y="Death age", x="Exposure to pollution (1=exposed, 0=not exposed)") +
-  ggtitle("Regression of death age on pollution from 1883 to 1906")
-xtable(x = summary.lm(lm.base), caption = "Regression of death age on pollution")
 stargazer(lm.base,type="latex")
 
 #Regression 2 : cross-regression seasonnality
+#investigation of the statistical biais
+ourbase<-subset(base, base$year>=1894)
+our<-table(ourbase$month)
+our<-as.data.frame(our)
+colnames(our)<-c("month","deaths")
+theirbase<-subset(base, base$year<1894)
+their<-table(theirbase$month)
+their<-as.data.frame(their)
+colnames(their)<-c("month","deaths")
+our$their<-their$deaths
+colnames(our)<-c("month", "1894-1906", "1883-1893")
+stargazer(our, summary=FALSE, rownames=FALSE)
 
+#removing statistical bias
+ourbase<-subset(base, base$year>=1894)
+lm.season<-lm(age~pollution*month,ourbase)
+rseason<-lm(age~pollution, ourbase)
+stargazer(lm.season, rseason, single.row = TRUE)
 #Regression 3 : focus on tannery 2 and paper factory
 
 #Paper factory
@@ -310,6 +320,10 @@ for(d in (1:length(date))){
 #Regression 4 : the old ones and the young ones
 
 ############Double difference approach###########
-
+base$post1896<-0
+base$post1896[base$year>=1896]<- 1
+did.base<-subset(base,base$year>=1896|base$year<1893)
+did<-lm(age~pollution*post1896,did.base)
+stargazer(did, type="latex")
 
 

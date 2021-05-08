@@ -14,6 +14,7 @@ library(ggridges)
 ###traitements de la base######
 base$year <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
+save(base,file = "uzerche_utlime.RData")
 
 
 base$pollution <- 0
@@ -40,7 +41,6 @@ base$town[base$place=="meilhards"] <- c("meilhards")
 base$town[base$place=="saint-ybard"] <- c("saint-ybard")
 base$town[base$place=="salon-la-tour"] <- c("salon-la-tour")
 base$town[base$place=="uzerche"] <- c("uzerche")
-base$town[base$place=="vigeois"] <- c("vigeois")
 sort(unique(base$town))
 
 
@@ -48,24 +48,28 @@ sort(unique(base$town))
 
 
 ######################seasonality###################
-base$pollution <- 0
-base$pollution[base$place=="uzerche"] <- 1
+ubase$pollution <- 0
+ubase$pollution[base$town=="uzerche"] <- 1
 base$annee <- substr(x = base$date,1,4)
 base$month <- substr(x = base$date,6,7)
 
 #tacking the error into account
-ourbase<-subset(base, base$year>1894)
+ourbase<-subset(base, base$year>=1894)
 #
 lm.season<-lm(age~pollution*month,ourbase)
-xtable(x= summary.lm(lm.season), caption="Seasonality in the death age and between areas")
-stargazer(lm.season)
+rseason<-lm(age~pollution, ourbase)
+stargazer(lm.season, rseason, single.row = TRUE)
 summary.lm(lm.season)
-
-summary(lm(age~pollution,base))
+summary.lm(rseason)
+#uzerche only
+ubase<-subset(ourbase, ourbase$pollution==1)
+summary(lm(age~month,ubase))
 #interpretation:
 #  df<-base %>% filter(base$town!="uzerche"&base$month=="01")
 #mean(df$age)
 #[1] 31.85155
+
+#a comparison 
 
 #############Infant seasonality#######################
 infant<-subset(base, base$age<=1)
@@ -91,6 +95,16 @@ for (i in (1:nrow(season))){
 season$deaths<-round(season$deaths)
 as.table(season$month, season$TG)
 xtable(season, summary=FALSE, rownames=FALSE)
+
+###############yearly analysis#########################
+summary(lm(age~pollution*year, base))
+#this confirm something weird happenned in 1901, and it affect more other towns
+death.df<-as.data.frame(table(base$pollution, base$year))
+colnames(death.df)<-c("TG", "year", "deaths")
+ggplot(death.df, aes(x=year, y=deaths, colour=TG))+
+  geom_point()
+
+
 
 
 ###error in data collection
