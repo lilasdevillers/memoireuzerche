@@ -350,7 +350,7 @@ aggregate(age~town,base,mean)
 xtable(aggregate(age~town,base,mean))
 
 ##################Regressions#########################
-# Regression 1 : simple linear model, regression of death age on exposure to pollution
+### Regression 1 : simple linear model, regression of death age on exposure to pollution
 #Which population is exposed to pollution ?
 base$pollution <- 0
 base$pollution[base$place=="uzerche"] <- 1
@@ -359,7 +359,7 @@ lm.base <-lm(age~pollution,base)
 summary.lm(lm.base)
 stargazer(lm.base,type="latex")
 
-#Regression 2 : cross-regression seasonnality
+####Regression 2 : cross-regression seasonnality
 #investigation of the statistical biais
 ourbase<-subset(base, base$year>=1894)
 our<-table(ourbase$month)
@@ -378,7 +378,8 @@ ourbase<-subset(base, base$year>=1894)
 lm.season<-lm(age~pollution*month,ourbase)
 rseason<-lm(age~pollution, ourbase)
 stargazer(lm.season, rseason, single.row = TRUE)
-#Regression 3 : focus on tannery 2 and paper factory
+
+###Regression 3 : focus on tannery 2 and paper factory
 
 #Paper factory
 base$postpaper <- 0
@@ -416,7 +417,32 @@ for(d in (1:length(date))){
   stargazer(lm.posttan2,type="latex")
 }
 
-#Regression 4 : the old ones and the young ones
+###Regression 4 : the old ones and the young ones
+#regression of the death age on pollution for the most sensitive populations
+#regression on the youngest
+base_youngest2 <- base %>% filter(base$age < 2)
+lm.youngest2 <- lm(age~pollution, base_youngest2)
+summary(lm.youngest2)
+#regression on the elderly population
+base_elderly40 <- base %>% filter(base$age > 40)
+lm.elderly40 <- lm(age~pollution, base_elderly40)
+summary(lm.elderly40)
+
+base_elderly50 <- base %>% filter(base$age > 50)
+lm.elderly50 <- lm(age~pollution, base_elderly50)
+summary(lm.elderly50)
+
+base_elderly60 <- base %>% filter(base$age > 60)
+lm.elderly60 <- lm(age~pollution, base_elderly60)
+summary(lm.elderly60)
+
+base_elderly70 <- base %>% filter(base$age > 70)
+lm.elderly70 <- lm(age~pollution, base_elderly70)
+summary(lm.elderly70)
+
+base_elderly80 <- base %>% filter(base$age > 80)
+lm.elderly80 <- lm(age~pollution, base_elderly80)
+summary(lm.elderly80)
 
 ############Double difference approach###########
 base$post1896<-0
