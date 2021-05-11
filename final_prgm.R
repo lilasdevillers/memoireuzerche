@@ -127,10 +127,10 @@ legend(x=1.862834,y=45.45924,legend=c("The Vézère"),
 legend(x=1.862834,y=45.40604,pch=20,legend=c("Towns not on the Vézère","Towns on the Vézère"),
        col =c("black","red"), cex=1, bty="n")
 
-#Adding data on the map
+#Adding data on the map : number of dead people per towns and years
 base$place <- str_to_upper(base$place)
 correze2 <- correze[canton,]
-VILLE <- c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR","UZERCHE","TREIGNAC")
+VILLE <- c("CONDAT-SUR-GANAVEIX","ESPARTIGNAC","EYBURIE","MASSERET","MEILHARDS","SAINT-YBARD","SALON-LA-TOUR","UZERCHE")
 date <- c(1894,1895,1896,1897,1898,1899,1900,1901,1902,1903,1904,1905,1906)
 d <-1
 v <- 1
@@ -142,13 +142,97 @@ for(d in (1:length(date))){
   for(v in (1:length(VILLE))){
     for(i in (1:nrow(correze2@data))){
       if(correze2@data$NOM_COMM[i]==VILLE[v]){
-        correze2@data[i,ncol_correze2+d] <- nrow(base[base$place==VILLE[v]&base$annee==date[d],])
+        correze2@data[i,ncol_correze2+d] <- nrow(base[base$place==VILLE[v]&base$year==date[d],])
       }
     }
   }
 }
 names(correze2) <- c("ID_GEOFLA", "CODE_COMM", "INSEE_COM", "NOM_COMM","STATUT", "X_CHF_LIEU" ,"Y_CHF_LIEU", "X_CENTROID","Y_CENTROID","Z_MOYEN" ,  "SUPERFICIE","POPULATION","CODE_CANT", "CODE_ARR" ,"CODE_DEPT", "NOM_DEPT","CODE_REG", "NOM_REGION","id","DEAD1894", "DEAD1895", "DEAD1896", "DEAD1897", "DEAD1898", "DEAD1899", "DEAD1900", "DEAD1901", "DEAD1902", "DEAD1903", "DEAD1904", "DEAD1905", "DEAD1906")
 base$place <- str_to_lower(base$place)
+
+nclr <- 4
+plotclr <- c("#7A0177","#AE017E","#F768A1","#FDE0DD")
+plotclr <- plotclr[nclr:1] # reorder colors
+
+colcode1906 <- findColours(classIntervals(correze2@data$DEAD1906,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1905 <- findColours(classIntervals(correze2@data$DEAD1905,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1904 <- findColours(classIntervals(correze2@data$DEAD1904,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1903 <- findColours(classIntervals(correze2@data$DEAD1903,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1902 <- findColours(classIntervals(correze2@data$DEAD1902,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1901 <- findColours(classIntervals(correze2@data$DEAD1901,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1900 <- findColours(classIntervals(correze2@data$DEAD1900,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1899 <- findColours(classIntervals(correze2@data$DEAD1899,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1898 <- findColours(classIntervals(correze2@data$DEAD1898,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1897 <- findColours(classIntervals(correze2@data$DEAD1897,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1896 <- findColours(classIntervals(correze2@data$DEAD1896,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1895 <- findColours(classIntervals(correze2@data$DEAD1895,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1894 <- findColours(classIntervals(correze2@data$DEAD1894,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+
+#Map of 1906
+plot(correze2,col=colcode1906)
+locator(n=1) #helping to find where to put the legend
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1906,"table")),
+       fill=attr(colcode1906, "palette"), cex=0.6, bty="n")
+
+#Map of 1905
+plot(correze2,col=colcode1905)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1905,"table")),
+       fill=attr(colcode1905, "palette"), cex=0.6, bty="n")
+
+#Map of 1904
+plot(correze2,col=colcode1904)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1904,"table")),
+       fill=attr(colcode1904, "palette"), cex=0.6, bty="n")
+
+#Map of 1903
+plot(correze2,col=colcode1903)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1903,"table")),
+       fill=attr(colcode1903, "palette"), cex=0.6, bty="n")
+
+#Map of 1902
+plot(correze2,col=colcode1902)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1902,"table")),
+       fill=attr(colcode1902, "palette"), cex=0.6, bty="n")
+
+#Map of 1901
+plot(correze2,col=colcode1901)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1901,"table")),
+       fill=attr(colcode1901, "palette"), cex=0.6, bty="n")
+
+#Map of 1900
+plot(correze2,col=colcode1900)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1900,"table")),
+       fill=attr(colcode1900, "palette"), cex=0.6, bty="n")
+
+#Map of 1899
+plot(correze2,col=colcode1899)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1899,"table")),
+       fill=attr(colcode1899, "palette"), cex=0.6, bty="n")
+
+#Map of 1898
+plot(correze2,col=colcode1898)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1898,"table")),
+       fill=attr(colcode1898, "palette"), cex=0.6, bty="n")
+
+#Map of 1897
+plot(correze2,col=colcode1897)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1897,"table")),
+       fill=attr(colcode1897, "palette"), cex=0.6, bty="n")
+
+#Map of 1896
+plot(correze2,col=colcode1896)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1896,"table")),
+       fill=attr(colcode1896, "palette"), cex=0.6, bty="n")
+
+#Map of 1895
+plot(correze2,col=colcode1895)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1895,"table")),
+       fill=attr(colcode1895, "palette"), cex=0.6, bty="n")
+
+#Map of 1894
+plot(correze2,col=colcode1894)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1894,"table")),
+       fill=attr(colcode1894, "palette"), cex=0.6, bty="n")
 
 #Map of % of cultivators
 correze2$prop_cultivateur <- "NA"
@@ -218,6 +302,21 @@ base$place <- str_to_lower(base$place)
 View(cultivateur)
 cultivateur <- slice(cultivateur,-9) #Deleting Treignac, might be another row number
 names(cultivateur) <- c("Towns","% of cultivator")
+
+#Factory job (and linger) table
+fjob <- c("tanneur","ouvrier","ouvrier militaire","ouvrier bardeur","ouvrier mineur","ouvrier papetier","papetier","linger")
+#chiffonier, manoeuvre ?
+fjobtable <- data.frame(matrix(nrow = 0,ncol = 2))
+i <- 1
+for(i in (1:length(fjob))){
+  fjobtable[i,1] <- fjob[i]
+  fjobtable[i,2] <- sum(base$job==fjob[i])
+}
+fjobtable[length(fjob)+1,1] <- "All"
+fjobtable[length(fjob)+1,2] <- sum(fjobtable$`Number of workers`)
+names(fjobtable) <- c("Jobs","Number of workers")
+View(fjobtable)
+xtable(fjobtable,caption="Number of people that may work in our factories and linen maid")
 
 #Population differences: cross-sectional data first insights
 #Age deaths distributions by towns
