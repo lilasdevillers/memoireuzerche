@@ -1,7 +1,6 @@
 ####Pretty PRGM####
 
-setwd("C:/Users/ger0n.DESKTOP-HBPHRVU/Desktop/Mageco/M?moire/memoire r")
-
+setwd("C:/Users/ger0n.DESKTOP-HBPHRVU/Desktop/Mageco/M?moire/memoire r"))
 library(xtable);library(dplyr);library(stringr);library(ggplot2);library(lubridate);library(tidyr);library(magrittr)
 #Open libraries
 
@@ -253,6 +252,90 @@ legend(x=0.7057949,y=45.62726,title="Number of deads in 1895",legend=names(attr(
 #Map of 1894
 plot(correze2,col=colcode1894)
 legend(x=0.7057949,y=45.62726,title="Number of deads in 1894",legend=names(attr(colcode1894,"table")),
+       fill=attr(colcode1894, "palette"), cex=0.6, bty="n")
+
+nclr <- 4
+plotclr <- c("#7A0177","#AE017E","#F768A1","#FDE0DD")
+plotclr <- plotclr[nclr:1] # reorder colors
+
+colcode1906 <- findColours(classIntervals(correze2@data$DEAD1906,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1905 <- findColours(classIntervals(correze2@data$DEAD1905,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1904 <- findColours(classIntervals(correze2@data$DEAD1904,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1903 <- findColours(classIntervals(correze2@data$DEAD1903,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1902 <- findColours(classIntervals(correze2@data$DEAD1902,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1901 <- findColours(classIntervals(correze2@data$DEAD1901,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1900 <- findColours(classIntervals(correze2@data$DEAD1900,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1899 <- findColours(classIntervals(correze2@data$DEAD1899,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1898 <- findColours(classIntervals(correze2@data$DEAD1898,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1897 <- findColours(classIntervals(correze2@data$DEAD1897,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1896 <- findColours(classIntervals(correze2@data$DEAD1896,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1895 <- findColours(classIntervals(correze2@data$DEAD1895,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+colcode1894 <- findColours(classIntervals(correze2@data$DEAD1894,nclr,style="fixed",fixedBreaks=c(0,20,40,60,80)),plotclr)
+
+#Map of 1906
+plot(correze2,col=colcode1906)
+locator(n=1) #helping to find where to put the legend
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1906,"table")),
+       fill=attr(colcode1906, "palette"), cex=0.6, bty="n")
+
+#Map of 1905
+plot(correze2,col=colcode1905)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1905,"table")),
+       fill=attr(colcode1905, "palette"), cex=0.6, bty="n")
+
+#Map of 1904
+plot(correze2,col=colcode1904)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1904,"table")),
+       fill=attr(colcode1904, "palette"), cex=0.6, bty="n")
+
+#Map of 1903
+plot(correze2,col=colcode1903)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1903,"table")),
+       fill=attr(colcode1903, "palette"), cex=0.6, bty="n")
+
+#Map of 1902
+plot(correze2,col=colcode1902)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1902,"table")),
+       fill=attr(colcode1902, "palette"), cex=0.6, bty="n")
+
+#Map of 1901
+plot(correze2,col=colcode1901)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1901,"table")),
+       fill=attr(colcode1901, "palette"), cex=0.6, bty="n")
+
+#Map of 1900
+plot(correze2,col=colcode1900)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1900,"table")),
+       fill=attr(colcode1900, "palette"), cex=0.6, bty="n")
+
+#Map of 1899
+plot(correze2,col=colcode1899)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1899,"table")),
+       fill=attr(colcode1899, "palette"), cex=0.6, bty="n")
+
+#Map of 1898
+plot(correze2,col=colcode1898)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1898,"table")),
+       fill=attr(colcode1898, "palette"), cex=0.6, bty="n")
+
+#Map of 1897
+plot(correze2,col=colcode1897)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1897,"table")),
+       fill=attr(colcode1897, "palette"), cex=0.6, bty="n")
+
+#Map of 1896
+plot(correze2,col=colcode1896)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1896,"table")),
+       fill=attr(colcode1896, "palette"), cex=0.6, bty="n")
+
+#Map of 1895
+plot(correze2,col=colcode1895)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1895,"table")),
+       fill=attr(colcode1895, "palette"), cex=0.6, bty="n")
+
+#Map of 1894
+plot(correze2,col=colcode1894)
+legend(x=1.1057949,y=45.62726,title="Number of dead people",legend=names(attr(colcode1894,"table")),
        fill=attr(colcode1894, "palette"), cex=0.6, bty="n")
 
 #Map of cultivator %

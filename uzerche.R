@@ -352,7 +352,7 @@ base$pollution <- 0
 base$pollution[base$place=="uzerche"|base$place=="vigeois"] <- 1
 lm2 <- lm(age~pollution+month,base)
 lm3 <- lm(age~pollution*month,base)
-aggregate(age~month,base,mean)
+aggregate(age~town,base,mean)
 aggregate(age~annee,base,mean)
 summary(lm(age~month,base))
 
