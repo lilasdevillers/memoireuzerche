@@ -86,6 +86,8 @@ job_factor <- factor(x=base$job)
 gender_factor <- factor(x = base$gender)
 levels(place_factor) ; levels(job_factor) ; levels(gender_factor)
 
+save(base,file = "final_base_uzerche.RData")
+
 #################Maps of Corrèze######################
 correze <- readOGR(dsn="19-correze", layer="19-")
 correze <- spTransform(correze, CRS("+proj=longlat"))
