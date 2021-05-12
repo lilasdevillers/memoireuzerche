@@ -23,7 +23,7 @@ library("maps")
 library("rgeos")
 
 #############Cleaning program###################
-base <- read.csv("uzerche_ultime.csv", sep=";")
+base <- read.csv("uzerche_deces_1883_1906.csv", sep=";")
 base <-base[,c(1:6)]
 colnames(base) <- c("name","gender","job","age","place","date")
 names(base) <- tolower(names(base))
@@ -36,7 +36,6 @@ base$date <- as.Date(base$date, format="%Y-%m-%d")
 base$year <- substr(x = base$date,1,4)
 base$year <- as.numeric(base$year)
 base$month <- substr(x = base$date,6,7)
-base$month <- as.numeric(base$month)
 summary(base)
 
 #Standardizing city's names
@@ -280,12 +279,12 @@ for(i in (1:length(town))){
   dead_town[i,2] <- sum(base$town[]==town[i])
 }
 dead_town <- slice(dead_town, -6)
-dead_town[11,1] <- c("Main towns")
-dead_town[11,2] <- sum(base$town[]!="other")
-dead_town[12,1] <- c("Other")
-dead_town[12,2] <- sum(base$town[]=="other")
-dead_town[13,1] <- c("Total")
-dead_town[13,2] <- nrow(base)
+dead_town[10,1] <- c("Main towns")
+dead_town[10,2] <- sum(base$town[]!="other")
+dead_town[11,1] <- c("Other")
+dead_town[11,2] <- sum(base$town[]=="other")
+dead_town[12,1] <- c("Total")
+dead_town[12,2] <- nrow(base)
 names(dead_town) <- c("Towns","Number of deaths")
 View(dead_town)
 xtable(x=dead_town,caption = "Number of deaths by location")
@@ -305,16 +304,15 @@ names(cultivateur) <- c("Towns","% of cultivator")
 
 #Factory job (and linger) table
 fjob <- c("tanneur","ouvrier","ouvrier militaire","ouvrier bardeur","ouvrier mineur","ouvrier papetier","papetier","linger")
-#chiffonier, manoeuvre ?
 fjobtable <- data.frame(matrix(nrow = 0,ncol = 2))
 i <- 1
 for(i in (1:length(fjob))){
   fjobtable[i,1] <- fjob[i]
   fjobtable[i,2] <- sum(base$job==fjob[i])
 }
+names(fjobtable) <- c("Jobs","Number of workers")
 fjobtable[length(fjob)+1,1] <- "All"
 fjobtable[length(fjob)+1,2] <- sum(fjobtable$`Number of workers`)
-names(fjobtable) <- c("Jobs","Number of workers")
 View(fjobtable)
 xtable(fjobtable,caption="Number of people that may work in our factories and linen maid")
 
@@ -450,5 +448,3 @@ base$post1896[base$year>=1896]<- 1
 did.base<-subset(base,base$year>=1896|base$year<1893)
 did<-lm(age~pollution*post1896,did.base)
 stargazer(did, type="latex")
-
-
